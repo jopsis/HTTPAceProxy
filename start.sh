@@ -39,15 +39,15 @@ echo "Waiting for service to start..."
 sleep 5
 
 # Check if service is running
-if curl -s http://localhost:8001/stat > /dev/null; then
+if curl -s http://localhost:8888/stat > /dev/null; then
     echo ""
     echo "================================================"
     echo "✓ HTTPAceProxy is running successfully!"
     echo "================================================"
     echo ""
     echo "Access URLs:"
-    echo "  - Playlist: http://localhost:8001/newera.m3u8"
-    echo "  - Stats:    http://localhost:8001/stat"
+    echo "  - Playlist: http://localhost:8888/newera.m3u8"
+    echo "  - Stats:    http://localhost:8888/stat"
     echo ""
     echo "Commands:"
     echo "  - View logs:    docker-compose logs -f"

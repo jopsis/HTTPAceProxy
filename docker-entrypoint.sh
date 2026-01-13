@@ -43,7 +43,7 @@ fi
 print_status "Configuration:"
 echo "  HTTPAceProxy:"
 echo "    Host: ${ACEPROXY_HOST:-0.0.0.0}"
-echo "    Port: ${ACEPROXY_PORT:-8001}"
+echo "    Port: ${ACEPROXY_PORT:-8888}"
 echo "  Ace Stream Engine:"
 echo "    Host: ${ACESTREAM_HOST:-127.0.0.1}"
 echo "    API Port: ${ACESTREAM_API_PORT:-62062}"

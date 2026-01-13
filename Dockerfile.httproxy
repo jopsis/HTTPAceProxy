@@ -1,0 +1,62 @@
+FROM python:3.10-slim
+
+# Variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Madrid
+
+# Instalar dependencias básicas
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        git \
+        ffmpeg \
+        build-essential \
+        libssl-dev \
+        swig \
+        netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
+
+# Crear directorio de la app
+WORKDIR /opt
+
+# Descargar HTTPAceProxy
+RUN git clone -b newera --recursive https://github.com/jopsis/HTTPAceProxy.git
+
+# Instalar dependencias de Python
+WORKDIR /opt/HTTPAceProxy
+RUN pip install --no-cache-dir 'gevent>=1.3.3,<25' 'psutil>=5.3.0,<6.0.0' m2crypto
+
+# Editar configuración para exponer en 0.0.0.0
+RUN sed -i -e "s|httphost = 'auto'|httphost = '0.0.0.0'|" aceconfig.py
+
+# Crear script de configuración dinámica con espera a Ace Stream
+RUN cat > /opt/HTTPAceProxy/configure.sh << 'SCRIPT'
+#!/bin/bash
+# Configurar conexión a Ace Stream dinámicamente
+ACE_HOST=${ACE_HOST:-127.0.0.1}
+ACE_API_PORT=${ACE_API_PORT:-62062}
+ACE_HTTP_PORT=${ACE_HTTP_PORT:-6878}
+
+echo "Esperando a que Ace Stream esté disponible en $ACE_HOST:$ACE_API_PORT ..."
+
+# Espera hasta que el puerto API esté abierto
+while ! nc -z $ACE_HOST $ACE_API_PORT; do
+    sleep 1
+done
+
+echo "Ace Stream detectado en $ACE_HOST:$ACE_API_PORT, iniciando HTTPAceProxy..."
+
+# Modificar aceconfig.py para usar las variables de entorno
+sed -i "s|'aceHostIP': '127.0.0.1'|'aceHostIP': '$ACE_HOST'|" aceconfig.py
+sed -i "s|'aceAPIport': '62062'|'aceAPIport': '$ACE_API_PORT'|" aceconfig.py
+sed -i "s|'aceHTTPport': '6878'|'aceHTTPport': '$ACE_HTTP_PORT'|" aceconfig.py
+sed -i "s|transcodecmd\['default'\] = .*|transcodecmd['default'] = 'ffmpeg -i - -map 0 -c:a copy -c:v libx264 -vf scale=1280:720 -preset veryfast -f mpegts -'.split()|" aceconfig.py1~sed -i "s|transcodecmd\['default'\] = .*|transcodecmd['default'] = 'ffmpeg -i - -map 0 -c:a copy -c:v libx264 -vf scale=1280:720 -preset veryfast -f mpegts -'.split()|" aceconfig.py
+
+# Ejecutar HTTPAceProxy
+exec python3 /opt/HTTPAceProxy/acehttp.py
+SCRIPT
+
+RUN chmod +x /opt/HTTPAceProxy/configure.sh
+
+EXPOSE 8888
+
+CMD ["/opt/HTTPAceProxy/configure.sh"]

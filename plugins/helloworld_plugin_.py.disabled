@@ -2,7 +2,7 @@
 This is the example of plugin.
 Rename this file to helloworld_plugin.py to enable it.
 
-To use it, go to http://127.0.0.1:8000/helloworld
+To use it, go to http://127.0.0.1:8888/helloworld
 '''
 
 class Helloworld(object):

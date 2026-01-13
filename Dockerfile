@@ -38,16 +38,16 @@ RUN chmod +x docker-entrypoint.sh
 VOLUME ["/app/logs"]
 
 # Expose HTTP port
-EXPOSE 8001
+EXPOSE 8888
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8001/stat || exit 1
+    CMD curl -f http://localhost:8888/stat || exit 1
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV ACEPROXY_HOST=0.0.0.0
-ENV ACEPROXY_PORT=8001
+ENV ACEPROXY_PORT=8888
 
 # Set entrypoint
 ENTRYPOINT ["./docker-entrypoint.sh"]

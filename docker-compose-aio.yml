@@ -1,0 +1,35 @@
+services:
+  acestream:
+    # build:
+    #   context: ./docker-acestream-arm/arm32
+    #   dockerfile: Dockerfile
+    image: jopsis/acestream:x64
+    platform: linux/amd64
+    container_name: acestream-engine
+    ports:
+      - "6878:6878"    # AceStream HTTP port
+      - "8621:8621"    # AceStream API port  
+    restart: unless-stopped
+    networks:
+      - aceproxy-net
+
+  httproxy:
+    build:
+      context: .
+      dockerfile: Dockerfile.httproxy
+    container_name: httpaceproxy
+    ports:
+      - "8888:8888"    # HTTPAceProxy web interface
+    environment:
+      - ACE_HOST=acestream
+      - ACE_API_PORT=62062
+      - ACE_HTTP_PORT=6878
+    depends_on:
+      - acestream
+    restart: unless-stopped
+    networks:
+      - aceproxy-net
+
+networks:
+  aceproxy-net:
+    driver: bridge

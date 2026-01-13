@@ -23,7 +23,7 @@ class AceConfig(acedefconfig.AceDefConfig):
 
     # HTTP Server configuration
     httphost = '0.0.0.0'  # Listen on all interfaces
-    httpport = 8001  # Changed to avoid conflict with other service
+    httpport = 8888  # Changed to avoid conflict with other service
 
     # Connection limits
     # maxconns = 20

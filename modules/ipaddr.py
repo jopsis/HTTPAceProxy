@@ -727,7 +727,7 @@ class _BaseNet(_IPAddrBase):
                 IPNetwork('::4/126'),
                 IPNetwork('::8/125'),
                 ...
-                IPNetwork('0:0:8000::/33')]
+                IPNetwork('0:0:8888::/33')]
 
         Args:
             other: An IPvXNetwork object of the same type.
@@ -1666,7 +1666,7 @@ class _BaseV6(object):
                 self in IPv6Network('1000::/4') or
                 self in IPv6Network('4000::/3') or
                 self in IPv6Network('6000::/3') or
-                self in IPv6Network('8000::/3') or
+                self in IPv6Network('8888::/3') or
                 self in IPv6Network('A000::/3') or
                 self in IPv6Network('C000::/3') or
                 self in IPv6Network('E000::/4') or

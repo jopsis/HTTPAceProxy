@@ -20,7 +20,7 @@ build:
 up:
 	@echo "Starting HTTPAceProxy container..."
 	docker-compose up -d
-	@echo "Container started! Access at http://localhost:8001/newera.m3u8"
+	@echo "Container started! Access at http://localhost:8888/newera.m3u8"
 
 down:
 	@echo "Stopping container..."
@@ -40,8 +40,8 @@ shell:
 
 test:
 	@echo "Testing service..."
-	@curl -s http://localhost:8001/stat > /dev/null && echo "✓ Service is running!" || echo "✗ Service is not responding"
-	@curl -s http://localhost:8001/newera.m3u8 | head -5
+	@curl -s http://localhost:8888/stat > /dev/null && echo "✓ Service is running!" || echo "✗ Service is not responding"
+	@curl -s http://localhost:8888/newera.m3u8 | head -5
 
 clean:
 	@echo "Cleaning up..."

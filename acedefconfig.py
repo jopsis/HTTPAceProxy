@@ -22,7 +22,7 @@ class AceDefConfig(object):
     aceconntimeout = 5
     aceresulttimeout = 5
     httphost = ''
-    httpport = 8001
+    httpport = 8888
     aceproxyuser = ''
     firewall = False
     firewallblacklistmode = False

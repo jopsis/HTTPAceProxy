@@ -32,10 +32,10 @@ docker-compose restart
 docker-compose ps
 
 # Acceder a la playlist
-curl http://localhost:8001/newera.m3u8
+curl http://localhost:8888/newera.m3u8
 
 # Ver estadísticas
-curl http://localhost:8001/stat
+curl http://localhost:8888/stat
 ```
 
 ## Opción 2: Usando Docker directamente
@@ -52,7 +52,7 @@ docker build -t httpaceproxy:latest .
 docker run -d \
   --name httpaceproxy \
   --restart unless-stopped \
-  -p 8001:8001 \
+  -p 8888:8888 \
   -v $(pwd)/logs:/app/logs \
   httpaceproxy:latest
 ```
@@ -74,10 +74,10 @@ docker rm httpaceproxy
 
 Una vez iniciado el contenedor, la aplicación estará disponible en:
 
-- **Playlist principal**: `http://localhost:8001/newera.m3u8`
-- **Playlist alternativa**: `http://localhost:8001/newera`
-- **Panel de estadísticas**: `http://localhost:8001/stat`
-- **Canal individual**: `http://localhost:8001/newera/channel/NOMBRE_CANAL.m3u8`
+- **Playlist principal**: `http://localhost:8888/newera.m3u8`
+- **Playlist alternativa**: `http://localhost:8888/newera`
+- **Panel de estadísticas**: `http://localhost:8888/stat`
+- **Canal individual**: `http://localhost:8888/newera/channel/NOMBRE_CANAL.m3u8`
 
 ## Configuración
 
@@ -104,7 +104,7 @@ Puedes configurar las siguientes variables de entorno en `docker-compose.yml`:
 ```yaml
 environment:
   - ACEPROXY_HOST=0.0.0.0
-  - ACEPROXY_PORT=8001
+  - ACEPROXY_PORT=8888
 ```
 
 ## Volúmenes
@@ -154,8 +154,8 @@ Si tu Ace Stream Engine está en otro host:
 # Ver el error
 docker-compose logs httpaceproxy
 
-# Verificar que el puerto 8001 no está ocupado
-lsof -i :8001
+# Verificar que el puerto 8888 no está ocupado
+lsof -i :8888
 
 # Reconstruir la imagen
 docker-compose build --no-cache
@@ -189,7 +189,7 @@ El contenedor usa una red bridge personalizada llamada `aceproxy-network`. Esto 
 
 - Los archivos de configuración se montan como solo lectura (`:ro`)
 - El contenedor se ejecuta con usuario no privilegiado
-- Solo se expone el puerto necesario (8001)
+- Solo se expone el puerto necesario (8888)
 - El health check verifica que el servicio está funcionando correctamente
 
 ## Producción
@@ -215,16 +215,16 @@ Para producción, considera:
 
 ```
 Media → Open Network Stream
-URL: http://IP_DEL_SERVIDOR:8001/newera.m3u8
+URL: http://IP_DEL_SERVIDOR:8888/newera.m3u8
 ```
 
 ### En Kodi
 
 ```
 Add-ons → PVR IPTV Simple Client
-M3U Play List URL: http://IP_DEL_SERVIDOR:8001/newera.m3u8
+M3U Play List URL: http://IP_DEL_SERVIDOR:8888/newera.m3u8
 ```
 
 ### En cualquier app IPTV
 
-Simplemente usa la URL: `http://IP_DEL_SERVIDOR:8001/newera.m3u8`
+Simplemente usa la URL: `http://IP_DEL_SERVIDOR:8888/newera.m3u8`

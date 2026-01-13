@@ -36,7 +36,7 @@ Ver [ACESTREAM-SETUP.md](ACESTREAM-SETUP.md) para más detalles.
 ./start.sh
 ```
 
-Eso es todo! El servidor estará disponible en: `http://localhost:8001/newera.m3u8`
+Eso es todo! El servidor estará disponible en: `http://localhost:8888/newera.m3u8`
 
 ## Inicio manual
 
@@ -76,32 +76,32 @@ make down
 docker build -t httpaceproxy .
 
 # Ejecutar
-docker run -d -p 8001:8001 --name httpaceproxy httpaceproxy
+docker run -d -p 8888:8888 --name httpaceproxy httpaceproxy
 ```
 
 ## URLs de acceso
 
-- **Playlist M3U8**: http://localhost:8001/newera.m3u8
-- **Playlist M3U**: http://localhost:8001/newera
-- **Estadísticas**: http://localhost:8001/stat
-- **Canal individual**: http://localhost:8001/newera/channel/NOMBRE_CANAL.m3u8
+- **Playlist M3U8**: http://localhost:8888/newera.m3u8
+- **Playlist M3U**: http://localhost:8888/newera
+- **Estadísticas**: http://localhost:8888/stat
+- **Canal individual**: http://localhost:8888/newera/channel/NOMBRE_CANAL.m3u8
 
 ## Uso en apps
 
 ### VLC
 ```
 Media → Open Network Stream
-URL: http://localhost:8001/newera.m3u8
+URL: http://localhost:8888/newera.m3u8
 ```
 
 ### KODI
 ```
 Add-ons → PVR IPTV Simple Client
-M3U Play List URL: http://localhost:8001/newera.m3u8
+M3U Play List URL: http://localhost:8888/newera.m3u8
 ```
 
 ### Navegador
-Simplemente abre: http://localhost:8001/newera.m3u8
+Simplemente abre: http://localhost:8888/newera.m3u8
 
 ## Configuración
 
