@@ -22,7 +22,7 @@ class AceDefConfig(object):
     aceconntimeout = 5
     aceresulttimeout = 5
     httphost = ''
-    httpport = 8000
+    httpport = 8001
     aceproxyuser = ''
     firewall = False
     firewallblacklistmode = False
@@ -44,13 +44,13 @@ class AceDefConfig(object):
     logdatefmt='%d.%m %H:%M:%S'
     logfile = None
 
-    @staticmethod
-    def isFakeRequest(path, params, headers):
+    @classmethod
+    def isFakeRequest(cls, path, params, headers):
         useragent = headers.get('User-Agent')
 
         if not useragent:
             return False
-        elif useragent in AceConfig.fakeuas:
+        elif useragent in cls.fakeuas:
             return True
         elif useragent == 'Lavf/55.33.100' and not 'Range' in headers:
             return True

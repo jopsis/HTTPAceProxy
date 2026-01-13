@@ -97,13 +97,23 @@ class HTTPHandler(BaseHTTPRequestHandler):
         logging.info(unquote('[{clientip}]: {command} {request_version} request for: {path}'.format(**self.__dict__)))
         logging.debug('[%s]: Request headers: %s' % (self.clientip, dict(self.headers)))
 
+        logging.debug('[%s]: Step 1 - checking firewall' % self.clientip)
         if AceConfig.firewall and not checkFirewall(self.clientip):
            self.send_error(401, '[{clientip}]: Dropping connection due to firewall rules'.format(**self.__dict__), logging.ERROR)
 
+        logging.debug('[%s]: Step 2 - parsing path' % self.clientip)
         self.path, _, self.query = self.path.partition('?')
         self.path = self.path.rstrip('/')
+        logging.debug('[%s]: Step 3 - path=%s, checking if fake' % (self.clientip, self.path))
         # Pretend to work fine with Fake or HEAD request.
-        if self.command == 'HEAD' or AceConfig.isFakeRequest(self.path, self.query, self.headers):
+        try:
+            is_fake = AceConfig.isFakeRequest(self.path, self.query, self.headers)
+        except Exception as e:
+            logging.error('[%s]: Error in isFakeRequest: %s' % (self.clientip, repr(e)))
+            logging.error(traceback.format_exc())
+            is_fake = False
+        logging.debug('[%s]: path=%s, is_fake=%s, command=%s' % (self.clientip, self.path, is_fake, self.command))
+        if self.command == 'HEAD' or is_fake:
            # Return 200 and exit
            if self.command != 'HEAD': self.command = 'FAKE'
            logging.debug('[{clientip}]: {command} request: send headers and close the connection'.format(**self.__dict__))
@@ -116,8 +126,21 @@ class HTTPHandler(BaseHTTPRequestHandler):
         try:
            self.splittedpath = self.path.split('/')
            self.reqtype = self.splittedpath[1].lower()
-           AceProxy.pluginshandlers[self.reqtype].handle(self) # If request should be handled by plugin
-           raise IndexError()
+           logging.debug('[%s]: Calling plugin handler for reqtype: %s' % (self.clientip, self.reqtype))
+           original_reqtype = self.reqtype
+           try:
+               AceProxy.pluginshandlers[self.reqtype].handle(self) # If request should be handled by plugin
+           except Exception as plugin_error:
+               logging.error('[%s]: Plugin handler error: %s' % (self.clientip, repr(plugin_error)))
+               logging.error(traceback.format_exc())
+               raise
+           # If plugin changed reqtype, continue processing with new reqtype
+           if hasattr(self, 'reqtype') and self.reqtype != original_reqtype:
+               logging.debug('[%s]: Plugin redirected to reqtype: %s' % (self.clientip, self.reqtype))
+               raise IndexError()  # Continue processing with new reqtype
+           else:
+               logging.debug('[%s]: Plugin handler completed successfully' % self.clientip)
+               return  # Plugin handled the request successfully
 
         except (IndexError, KeyError):
            self.reqtype = {'torrent': 'url', 'pid': 'content_id'}.get(self.reqtype, self.reqtype) # For backward compatibility
@@ -445,7 +468,7 @@ def check_compatibility(gevent_version, psutil_version):
     # Check psutil for compatibility.
     major, minor, patch = map(int, psutil_version.split('.')[:3])
     # psutil >= 5.3.0
-    assert (major, minor, patch) >= (5, 3, 0) and (major, minor, patch) < (6, 0, 0)
+    assert (major, minor, patch) >= (5, 3, 0)
 
 logging.basicConfig(level=AceConfig.loglevel, filename=AceConfig.logfile, format=AceConfig.logfmt, datefmt=AceConfig.logdatefmt)
 logger = logging.getLogger('HTTPServer')
@@ -532,7 +555,8 @@ def add_handler(name):
 
 # Creating dict of handlers
 pluginslist = [os.path.splitext(os.path.basename(x))[0] for x in glob.glob('plugins/*_plugin.py')]
-AceProxy.pluginshandlers = {key:val for k in map(add_handler, pluginslist) for key,val in k.items()}
+AceProxy.pluginshandlers = {key:val for k in map(add_handler, pluginslist) for key,val in k.items() if k}
+logger.debug('Registered plugin handlers: %s' % list(AceProxy.pluginshandlers.keys()))
 # Server setup
 AceProxy.server = StreamServer((AceConfig.httphost, AceConfig.httpport), handle=HTTPHandler, spawn=AceProxy.pool)
 # Capture  signal handlers (SIGINT, SIGQUIT etc.)
