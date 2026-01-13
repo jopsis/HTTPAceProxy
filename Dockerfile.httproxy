@@ -46,10 +46,15 @@ done
 echo "Ace Stream detectado en $ACE_HOST:$ACE_API_PORT, iniciando HTTPAceProxy..."
 
 # Modificar aceconfig.py para usar las variables de entorno
-sed -i "s|'aceHostIP': '127.0.0.1'|'aceHostIP': '$ACE_HOST'|" aceconfig.py
-sed -i "s|'aceAPIport': '62062'|'aceAPIport': '$ACE_API_PORT'|" aceconfig.py
-sed -i "s|'aceHTTPport': '6878'|'aceHTTPport': '$ACE_HTTP_PORT'|" aceconfig.py
-sed -i "s|transcodecmd\['default'\] = .*|transcodecmd['default'] = 'ffmpeg -i - -map 0 -c:a copy -c:v libx264 -vf scale=1280:720 -preset veryfast -f mpegts -'.split()|" aceconfig.py1~sed -i "s|transcodecmd\['default'\] = .*|transcodecmd['default'] = 'ffmpeg -i - -map 0 -c:a copy -c:v libx264 -vf scale=1280:720 -preset veryfast -f mpegts -'.split()|" aceconfig.py
+# Cambiar el puerto HTTP del proxy a 8888
+sed -i "s|httpport = 8001|httpport = 8888|" aceconfig.py
+
+# Configurar conexión a Ace Stream usando variables de entorno
+# El nuevo aceconfig.py ya usa os.getenv(), así que configuramos las variables correctamente
+# Como el código usa ACESTREAM_*, pero docker-compose usa ACE_*, hacemos el mapeo
+export ACESTREAM_HOST=$ACE_HOST
+export ACESTREAM_API_PORT=$ACE_API_PORT
+export ACESTREAM_HTTP_PORT=$ACE_HTTP_PORT
 
 # Ejecutar HTTPAceProxy
 exec python3 /opt/HTTPAceProxy/acehttp.py
