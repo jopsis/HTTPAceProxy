@@ -2,6 +2,7 @@
 .git
 .gitignore
 .gitattributes
+.github
 
 # Python cache
 __pycache__
@@ -32,13 +33,15 @@ Thumbs.db
 logs/
 
 # Docker files
-Dockerfile
-docker-compose.yml
+Dockerfile*
+docker-compose*.yml
 .dockerignore
 
-# Documentation
-README.md
+# Documentation (keep README.md for Docker Hub)
+# README.md
 LICENSE
+*.md
+!README.md
 
 # Temporary files
 *.tmp
