@@ -1,16 +1,16 @@
 services:
   ## Uncomment the appropriate acestream service based on your system architecture
   ## For x64 systems:
-  # acestream:
-  #   image: jopsis/acestream:x64
-  #   platform: linux/amd64
-  #   container_name: acestream-engine
-  #   ports:
-  #     - "6878:6878"    # AceStream HTTP port (expuesto externamente)
-  #     - "62062:62062"  # AceStream API port (corregido)
-  #   restart: unless-stopped
-  #   networks:
-  #     - aceproxy-net
+  acestream:
+    image: jopsis/acestream:x64
+    platform: linux/amd64
+    container_name: acestream-engine
+    ports:
+      - "6878:6878"    # AceStream HTTP port (expuesto externamente)
+      - "62062:62062"  # AceStream API port (corregido)
+    restart: unless-stopped
+    networks:
+      - aceproxy-net
   ## For ARM64 systems:
   # acestream:
   #   image: jopsis/acestream:arm64-v3.2.14
