@@ -37,7 +37,7 @@ $(document).ready(function() {
     // AJAX request for get status
     function getStatus() {
         $.ajax({
-            url: 'http://' + window.location.host + '/stat/?action=get_status',
+            url: window.location.protocol + '//' + window.location.host + '/stat/?action=get_status',
             type: 'get',
             success: function(resp) {
                 if(resp.status === 'success') {
