@@ -64,26 +64,51 @@ class Statplugin(object):
         Format: {plugins: [{name, total_channels, channels: [...]}, ...]}
         '''
         plugins_data = []
+        processed_plugins = set()  # Track unique plugin instances by id()
 
         for handler_name, plugin in self.AceProxy.pluginshandlers.items():
             # Skip stat plugins
             if handler_name in ('stat', 'statplugin'):
                 continue
 
+            # Skip if we already processed this plugin instance
+            # (handles cases like 'newera' and 'newera.m3u8' being the same instance)
+            plugin_id = id(plugin)
+            if plugin_id in processed_plugins:
+                continue
+            processed_plugins.add(plugin_id)
+
             # Only process plugins that have channels
             if not hasattr(plugin, 'channels') or not plugin.channels:
                 continue
 
-            self.logger.debug('[Statplugin]: Processing plugin: %s' % handler_name)
+            # Use the shortest handler name for this plugin (prefer 'newera' over 'newera.m3u8')
+            plugin_handlers = [h for h, p in self.AceProxy.pluginshandlers.items() if id(p) == plugin_id]
+            plugin_name = min(plugin_handlers, key=len) if plugin_handlers else handler_name
+
+            self.logger.debug('[Statplugin]: Processing plugin: %s (%d channels)' % (plugin_name, len(plugin.channels)))
 
             channels_list = []
+            skipped = 0
             for channel_name, url in plugin.channels.items():
                 # Extract content_id from URL
                 parsed = urlparse(url)
-                content_id = parsed.netloc if parsed.scheme == 'acestream' else None
 
-                if not content_id:
-                    self.logger.warning('[Statplugin]: Invalid URL for channel %s: %s' % (channel_name, url))
+                # Handle different URL schemes
+                if parsed.scheme == 'acestream':
+                    content_id = parsed.netloc
+                elif parsed.scheme in ('http', 'https'):
+                    # For HTTP URLs, try to extract hash from path
+                    content_id = None
+                    self.logger.debug('[Statplugin]: Skipping HTTP URL for channel %s' % channel_name)
+                    skipped += 1
+                    continue
+                else:
+                    content_id = None
+
+                if not content_id or len(content_id) < 10:
+                    self.logger.warning('[Statplugin]: Invalid or missing content_id for channel %s (url: %s)' % (channel_name, url))
+                    skipped += 1
                     continue
 
                 # Get cached status if available
@@ -106,8 +131,11 @@ class Statplugin(object):
                     'infohash': cached.get('infohash', ''),
                 })
 
+            if skipped > 0:
+                self.logger.info('[Statplugin]: Plugin %s: %d channels added, %d skipped' % (plugin_name, len(channels_list), skipped))
+
             plugins_data.append({
-                'name': handler_name,
+                'name': plugin_name,
                 'total_channels': len(channels_list),
                 'channels': channels_list
             })
