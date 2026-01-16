@@ -337,7 +337,8 @@ class Statplugin(object):
             ace.GetAUTH()
 
             # Get content info (LOADASYNC only, no START)
-            loadresp = ace.GetLOADASYNC({'content_id': content_id})
+            # IMPORTANT: Must pass sessionID along with content_id for LOADASYNC template
+            loadresp = ace.GetLOADASYNC({'content_id': content_id, 'sessionID': params['sessionID']})
 
             # Shutdown connection
             ace.ShutdownAce()
