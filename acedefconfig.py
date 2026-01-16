@@ -31,6 +31,7 @@ class AceDefConfig(object):
         '192.168.0.0/16',
         )
     maxconns = 10
+    maxconcurrentchannels = 5  # Maximum number of different channels (broadcasts) streaming simultaneously
     acestreamtype = {'output_format': 'http'}
     # Example for hls-steam request from AceEngine
     #acestreamtype = {'output_format': 'hls', 'transcode_audio': 0, 'transcode_mp3': 0, 'transcode_ac3': 0, 'preferred_audio_language': 'rus'}

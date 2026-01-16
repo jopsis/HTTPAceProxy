@@ -188,25 +188,49 @@ class HTTPHandler(BaseHTTPRequestHandler):
                              })
         # End parameters dict
         try:
-           self.q = gevent.queue.Queue(maxsize=AceConfig.videotimeout)
            transcoder = gevent.event.AsyncResult()
            out = self.wfile
            gevent.spawn(wrap_errors(gevent.socket.error, self.rfile.read)).link(lambda x: self.handlerGreenlet.kill()) # Client disconection watchdog
+
+           # Step 1: Get content info (infohash) using temporary idleAce
+           # This idleAce is NOT used for streaming, only for metadata
            try:
               if not AceProxy.clientcounter.idleAce:
-                 logger.debug('Create a connection with AceStream on {ace[aceHostIP]}:{ace[aceAPIport]}'.format(**self.__dict__))
+                 logger.debug('Create temporary connection with AceStream on {ace[aceHostIP]}:{ace[aceAPIport]} for CONTENTINFO'.format(**self.__dict__))
                  AceProxy.clientcounter.idleAce = aceclient.AceClient(self.__dict__)
                  AceProxy.clientcounter.idleAce.GetAUTH()
+
               if self.reqtype not in ('direct_url', 'efile_url'):
+                 # Use idleAce to get content info (infohash, files, etc)
                  self.__dict__.update(AceProxy.clientcounter.idleAce.GetCONTENTINFO(self.__dict__))
                  self.channelName = ensure_str(self.__dict__.get('channelName', next(iter([ x[0] for x in self.files if x[1] == int(self.file_indexes) ]), 'NoNameChannel')))
               else:
+                 # For direct URLs, generate infohash from path
                  self.channelName = ensure_str(self.__dict__.get('channelName', 'NoNameChannel'))
                  self.infohash = requests.auth.hashlib.sha1(ensure_binary(self.path)).hexdigest()
-              AceProxy.clientcounter.idleAce._title = self.channelName
+
+              logger.debug('[{clientip}]: Content info retrieved - infohash: {infohash}, channel: {channelName}'.format(**self.__dict__))
+
            except Exception as e:
-              AceProxy.clientcounter.idleAce._read.kill()
+              if AceProxy.clientcounter.idleAce:
+                 try:
+                    AceProxy.clientcounter.idleAce._read.kill()
+                 except: pass
               self.send_error(404, '%s' % repr(e), logging.ERROR)
+
+           # Step 2: Check concurrent broadcast limit BEFORE creating new broadcast
+           if 0 < AceConfig.maxconcurrentchannels <= AceProxy.clientcounter.getBroadcastCount():
+              # Only enforce limit if this would be a NEW broadcast (infohash not already active)
+              if self.infohash not in AceProxy.clientcounter.broadcasts:
+                 logger.warning('[{clientip}]: Maximum concurrent broadcasts reached ({}/{}), rejecting new channel request'.format(
+                    AceProxy.clientcounter.getBroadcastCount(), AceConfig.maxconcurrentchannels, **self.__dict__))
+                 self.send_error(503, "[{clientip}]: Maximum concurrent channels reached ({} active), try again later".format(
+                    AceProxy.clientcounter.getBroadcastCount()), logging.WARNING)
+
+           # Step 3: Get or create broadcast for this channel
+           # BroadcastManager will reuse existing broadcast or create new one
+           # This assigns self.ace and self.q via addClient() later
+           logger.debug('[{clientip}]: Getting/Creating broadcast for infohash: {infohash}'.format(**self.__dict__))
 
            self.ext = self.__dict__.get('ext', self.channelName[self.channelName.rfind('.') + 1:])
            if self.ext == self.channelName: self.ext = query_get(self.query, 'ext', 'ts')
