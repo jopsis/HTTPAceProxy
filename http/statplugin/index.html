@@ -115,44 +115,63 @@
             padding: 16px 25px;
             border-bottom: 1px solid #f0f0f0;
             display: grid;
-            grid-template-columns: 50px 1fr 140px 80px 110px;
-            gap: 15px;
+            grid-template-columns: 50px minmax(150px, 1fr) 120px 70px 100px;
+            gap: 12px;
             align-items: center;
             transition: all 0.2s;
         }
         .channel:hover {
             background: #f8f9fa;
-            transform: translateX(5px);
         }
         .channel:last-child { border-bottom: none; }
+        .channel-logo-wrapper {
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+        }
         .channel-logo {
             width: 50px;
             height: 50px;
             object-fit: contain;
             border-radius: 6px;
             border: 1px solid #e0e0e0;
+            background: #f8f8f8;
         }
-        .channel-info { flex: 1; }
+        .channel-logo-placeholder {
+            width: 50px;
+            height: 50px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        .channel-info {
+            min-width: 0;
+            overflow: hidden;
+        }
         .channel-name {
             font-weight: 600;
             color: #333;
-            font-size: 15px;
+            font-size: 14px;
             margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .channel-id {
             font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 11px;
+            font-size: 10px;
             color: #999;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         .status {
-            padding: 8px 16px;
+            padding: 6px 10px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             text-align: center;
+            white-space: nowrap;
         }
         .status.available {
             background: #d4edda;
@@ -180,62 +199,61 @@
             50% { opacity: 0.7; }
         }
         .check-btn {
-            padding: 8px 16px;
+            padding: 5px 10px;
             background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 600;
             transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,123,255,0.2);
+            white-space: nowrap;
         }
         .check-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,123,255,0.3);
+            filter: brightness(1.1);
         }
         .check-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
         .peers-btn {
-            padding: 8px 12px;
+            padding: 5px 10px;
             background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(111,66,193,0.2);
+            white-space: nowrap;
         }
         .peers-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(111,66,193,0.3);
+            filter: brightness(1.1);
         }
         .peers-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
+        }
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
         .peers-info {
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            gap: 4px;
         }
         .peers-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 10px;
             font-weight: 600;
             background: #e9ecef;
             color: #495057;
+            white-space: nowrap;
         }
         .peers-badge.has-peers {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
@@ -432,8 +450,8 @@
                     channelDiv.dataset.contentId = channel.content_id;
 
                     const logoHtml = channel.logo
-                        ? `<img src="${channel.logo}" class="channel-logo" onerror="this.style.display='none'">`
-                        : '<div class="channel-logo" style="background:#f0f0f0"></div>';
+                        ? `<div class="channel-logo-wrapper"><img src="${channel.logo}" class="channel-logo" onerror="this.outerHTML='<div class=channel-logo-placeholder></div>'"></div>`
+                        : '<div class="channel-logo-wrapper"><div class="channel-logo-placeholder"></div></div>';
 
                     const statusClass = channel.status || 'unknown';
                     const statusText = {
@@ -457,12 +475,12 @@
                     channelDiv.innerHTML = `
                         ${logoHtml}
                         <div class="channel-info">
-                            <div class="channel-name">${channel.name}</div>
-                            <div class="channel-id">${channel.content_id}</div>
+                            <div class="channel-name" title="${channel.name}">${channel.name}</div>
+                            <div class="channel-id" title="${channel.content_id}">${channel.content_id}</div>
                         </div>
                         <div class="status ${statusClass}">${statusText}</div>
                         ${peersHtml}
-                        <div style="display:flex;gap:6px;flex-direction:column">
+                        <div class="btn-group">
                             <button class="check-btn" id="${btnId}"
                                     onclick="checkChannel('${plugin.name}', '${escapeHtml(channel.name)}', '${channel.content_id}', this)">
                                 Check
