@@ -78,11 +78,27 @@ docker build -t httpaceproxy:latest .
 
 ### Ejecutar el contenedor
 
+**Ejecución básica:**
 ```bash
 docker run -d \
   --name httpaceproxy \
   --restart unless-stopped \
   -p 8888:8888 \
+  -v $(pwd)/logs:/app/logs \
+  httpaceproxy:latest
+```
+
+**Con configuración personalizada:**
+```bash
+docker run -d \
+  --name httpaceproxy \
+  --restart unless-stopped \
+  -p 8888:8888 \
+  -e ACESTREAM_HOST=127.0.0.1 \
+  -e ACESTREAM_API_PORT=62062 \
+  -e ACESTREAM_HTTP_PORT=6878 \
+  -e MAX_CONNECTIONS=50 \
+  -e MAX_CONCURRENT_CHANNELS=10 \
   -v $(pwd)/logs:/app/logs \
   httpaceproxy:latest
 ```
@@ -133,9 +149,50 @@ Puedes configurar las siguientes variables de entorno en `docker-compose.yml`:
 
 ```yaml
 environment:
-  - ACEPROXY_HOST=0.0.0.0
-  - ACEPROXY_PORT=8888
+  # Conexión a Ace Stream Engine
+  - ACESTREAM_HOST=aceserve          # Host del motor Ace Stream
+  - ACESTREAM_API_PORT=62062         # Puerto API (default: 62062)
+  - ACESTREAM_HTTP_PORT=6878         # Puerto HTTP (default: 6878)
+
+  # Servidor HTTPAceProxy
+  - ACEPROXY_HOST=0.0.0.0            # Interfaz de escucha
+  - ACEPROXY_PORT=8888               # Puerto del servidor
+
+  # Límites de conexión (opcional)
+  - MAX_CONNECTIONS=10               # Máximo de conexiones totales (default: 10)
+  - MAX_CONCURRENT_CHANNELS=5        # Máximo de canales simultáneos (default: 5)
 ```
+
+### Ejemplos de configuración de límites
+
+**Uso personal (1-5 usuarios):**
+```yaml
+environment:
+  - MAX_CONNECTIONS=10
+  - MAX_CONCURRENT_CHANNELS=3
+```
+
+**Uso familiar (5-15 usuarios):**
+```yaml
+environment:
+  - MAX_CONNECTIONS=25
+  - MAX_CONCURRENT_CHANNELS=5
+```
+
+**Servidor compartido (15-50 usuarios):**
+```yaml
+environment:
+  - MAX_CONNECTIONS=100
+  - MAX_CONCURRENT_CHANNELS=15
+```
+
+**Notas importantes:**
+- Múltiples clientes viendo el **mismo canal** solo usan **1 slot de canal**
+- Cada canal diferente requiere **1 slot de canal** y una conexión dedicada a AceStream
+- El total de conexiones incluye todos los clientes en todos los canales
+- Ajusta según los recursos de tu servidor y ancho de banda disponible
+
+📖 **Para una guía completa sobre límites de conexión, consulta:** [CONNECTION-LIMITS.md](CONNECTION-LIMITS.md)
 
 ## Volúmenes
 

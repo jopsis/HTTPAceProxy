@@ -25,8 +25,9 @@ class AceConfig(acedefconfig.AceDefConfig):
     httphost = '0.0.0.0'  # Listen on all interfaces
     httpport = 8888  # Changed to avoid conflict with other service
 
-    # Connection limits
-    # maxconns = 20
+    # Connection limits (configurable via environment variables)
+    maxconns = int(os.getenv('MAX_CONNECTIONS', '10'))
+    maxconcurrentchannels = int(os.getenv('MAX_CONCURRENT_CHANNELS', '5'))
 
     # Firewall settings
     # firewall = True

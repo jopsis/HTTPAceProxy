@@ -30,6 +30,8 @@ docker run -d \
   -e ACESTREAM_HOST=your_acestream_host \
   -e ACESTREAM_API_PORT=62062 \
   -e ACESTREAM_HTTP_PORT=6878 \
+  -e MAX_CONNECTIONS=10 \
+  -e MAX_CONCURRENT_CHANNELS=5 \
   jopsis/httpaceproxy:latest
 ```
 
@@ -76,6 +78,7 @@ http://localhost:8888/elcano.m3u8   (71 curated channels)
 - **[Plugin Documentation](PLUGINS.md)** - NewEra and Elcano plugin details
 - **[Docker Setup](README.Docker.md)** - Advanced Docker configuration
 - **[Ace Stream Setup](ACESTREAM-SETUP.md)** - Configure Ace Stream Engine
+- **[Connection Limits](CONNECTION-LIMITS.md)** - Configure client and channel limits
 - **[Nginx Proxy Manager Setup](NGINX-NPM-SETUP.md)** - Reverse proxy configuration
 
 ## 🎬 Usage Examples
@@ -135,16 +138,26 @@ Client C1, C2     → Broadcast C (La Liga TV) → AceStream Connection 3
 
 ### Configuration
 
-Maximum concurrent channels can be adjusted in `aceconfig.py`:
+**Docker (Recommended):**
+Configure via environment variables in `docker-compose.yml`:
+```yaml
+environment:
+  - MAX_CONNECTIONS=10           # Maximum total client connections (default: 10)
+  - MAX_CONCURRENT_CHANNELS=5    # Maximum different channels (default: 5)
+```
+
+**Direct Python:**
+Edit `aceconfig.py`:
 ```python
-maxconcurrentchannels = 5  # Maximum different channels (default: 5)
-maxconns = 10              # Maximum total client connections (default: 10)
+maxconns = 10              # Maximum total client connections
+maxconcurrentchannels = 5  # Maximum different channels simultaneously
 ```
 
 **Example Scenarios:**
-- 10 clients watching DAZN 1 → Uses 1 channel slot
-- 3 clients on DAZN 1 + 2 clients on Eurosport 1 → Uses 2 channel slots
-- 5 different channels with 1 client each → Uses all 5 slots (limit reached)
+- 10 clients watching DAZN 1 → Uses 1 channel slot, 10 connections
+- 3 clients on DAZN 1 + 2 clients on Eurosport 1 → Uses 2 channel slots, 5 connections
+- 5 different channels with 1 client each → Uses all 5 slots (limit reached), 5 connections
+- For 50 clients and 10 different channels: Set `MAX_CONNECTIONS=50` and `MAX_CONCURRENT_CHANNELS=10`
 
 ## 🔌 Active Plugins
 
@@ -205,10 +218,17 @@ See [Quick Start Guide](QUICKSTART.md) for more options.
 ### Environment Variables (Docker)
 
 ```bash
+# Ace Stream Engine connection
 ACESTREAM_HOST=127.0.0.1       # Ace Stream Engine host
 ACESTREAM_API_PORT=62062       # Ace Stream API port
 ACESTREAM_HTTP_PORT=6878       # Ace Stream HTTP port
+
+# HTTPAceProxy settings
 ACEPROXY_PORT=8888             # HTTPAceProxy port
+
+# Connection limits (optional)
+MAX_CONNECTIONS=10             # Maximum total client connections (default: 10)
+MAX_CONCURRENT_CHANNELS=5      # Maximum different channels simultaneously (default: 5)
 ```
 
 ### Configuration File
@@ -222,17 +242,49 @@ Edit `aceconfig.py` to customize:
 
 **Key Configuration Options:**
 ```python
-maxconns = 10                  # Maximum total client connections
-maxconcurrentchannels = 5      # Maximum different channels simultaneously
+# Via aceconfig.py (or environment variables in Docker):
+maxconns = 10                  # Maximum total client connections (env: MAX_CONNECTIONS)
+maxconcurrentchannels = 5      # Maximum different channels simultaneously (env: MAX_CONCURRENT_CHANNELS)
 httpport = 8888                # HTTPAceProxy listening port
 ace = {                        # Ace Stream Engine connection
-    'aceHostIP': '127.0.0.1',
-    'aceAPIport': '62062',
-    'aceHTTPport': '6878'
+    'aceHostIP': '127.0.0.1',  # env: ACESTREAM_HOST
+    'aceAPIport': '62062',     # env: ACESTREAM_API_PORT
+    'aceHTTPport': '6878'      # env: ACESTREAM_HTTP_PORT
 }
 ```
 
 See `acedefconfig.py` for all available options.
+
+### Connection Limits Examples
+
+Configure limits based on your use case:
+
+**Personal Use (1-5 users):**
+```yaml
+environment:
+  - MAX_CONNECTIONS=10
+  - MAX_CONCURRENT_CHANNELS=3
+```
+
+**Family/Small Group (5-15 users):**
+```yaml
+environment:
+  - MAX_CONNECTIONS=25
+  - MAX_CONCURRENT_CHANNELS=5
+```
+
+**Shared Server (15-50 users):**
+```yaml
+environment:
+  - MAX_CONNECTIONS=100
+  - MAX_CONCURRENT_CHANNELS=15
+```
+
+**Important Notes:**
+- Multiple clients watching the **same channel** only count as **1 channel slot**
+- Each different channel requires **1 channel slot** and a dedicated AceStream connection
+- Total connections includes all clients across all channels
+- Adjust based on your server resources and bandwidth
 
 ## 🌐 Reverse Proxy Setup
 

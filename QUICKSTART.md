@@ -18,6 +18,14 @@ docker-compose -f docker-compose-aio.yml up -d
 
 **Listo!** Ya tienes todo funcionando. Salta a la sección [URLs de acceso](#urls-de-acceso).
 
+**💡 Personalizar límites de conexión (opcional):**
+Si necesitas más clientes o canales simultáneos, edita `docker-compose-aio.yml` antes de iniciar:
+```yaml
+environment:
+  - MAX_CONNECTIONS=50           # Aumentar clientes totales
+  - MAX_CONCURRENT_CHANNELS=10   # Permitir más canales diferentes
+```
+
 ---
 
 ## 🔧 Alternativa: Usar tu propio Ace Stream
@@ -128,6 +136,31 @@ M3U Play List URL: http://localhost:8888/newera.m3u8
 Simplemente abre: http://localhost:8888/newera.m3u8
 
 ## Configuración
+
+### Configuración básica (Docker)
+
+Edita el archivo `docker-compose-aio.yml` o `docker-compose.yml` para cambiar las variables de entorno:
+
+```yaml
+environment:
+  # Límites de conexión (opcional)
+  - MAX_CONNECTIONS=20              # Aumentar conexiones totales (default: 10)
+  - MAX_CONCURRENT_CHANNELS=10      # Permitir más canales simultáneos (default: 5)
+
+  # Conexión a Ace Stream
+  - ACESTREAM_HOST=aceserve
+  - ACESTREAM_API_PORT=62062
+  - ACESTREAM_HTTP_PORT=6878
+```
+
+**Ejemplos de uso:**
+- Para 50 clientes y 10 canales diferentes: `MAX_CONNECTIONS=50` y `MAX_CONCURRENT_CHANNELS=10`
+- Para uso personal (pocos clientes): Usar valores por defecto
+- Para servidor compartido: Aumentar según necesidad
+
+📖 **Para más detalles sobre límites de conexión, consulta:** [CONNECTION-LIMITS.md](CONNECTION-LIMITS.md)
+
+### Configuración avanzada (Archivo)
 
 Edita `aceconfig.py` para cambiar:
 - Puerto del servidor

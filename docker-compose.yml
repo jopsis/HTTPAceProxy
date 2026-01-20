@@ -24,6 +24,11 @@ services:
       - ACESTREAM_HOST=${ACESTREAM_HOST:-host.docker.internal}
       - ACESTREAM_API_PORT=${ACESTREAM_API_PORT:-62062}
       - ACESTREAM_HTTP_PORT=${ACESTREAM_HTTP_PORT:-6878}
+      # Connection limits - Adjust based on your needs (see CONNECTION-LIMITS.md)
+      # Personal: 10 connections, 3-5 channels | Family: 25 connections, 5-10 channels
+      # Server: 100+ connections, 15-20 channels
+      - MAX_CONNECTIONS=${MAX_CONNECTIONS:-10}
+      - MAX_CONCURRENT_CHANNELS=${MAX_CONCURRENT_CHANNELS:-5}
     networks:
       - aceproxy-network
     healthcheck:

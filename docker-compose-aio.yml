@@ -45,6 +45,9 @@ services:
       - ACE_HOST=aceserve
       - ACE_API_PORT=62062
       - ACE_HTTP_PORT=6878
+      # Connection limits - Adjust based on your needs (see CONNECTION-LIMITS.md)
+      - MAX_CONNECTIONS=10           # Total clients (Personal: 10, Family: 25, Server: 100+)
+      - MAX_CONCURRENT_CHANNELS=5    # Different channels (Personal: 3-5, Family: 5-10, Server: 15-20)
     depends_on:
       - aceserve
     restart: unless-stopped
