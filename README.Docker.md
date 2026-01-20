@@ -36,6 +36,7 @@ docker-compose -f docker-compose-aio.yml logs -f
 - No necesitas Ace Stream Engine instalado separadamente
 - Optimizado y más ligero que el motor oficial
 - Soporta x64, ARM64 y ARM32
+- Healthcheck integrado: HTTPAceProxy espera a que AceServe esté completamente listo
 
 ## Opción 1: Usando Docker Compose (Recomendado)
 
@@ -204,11 +205,65 @@ El contenedor monta los siguientes volúmenes:
 
 ## Health Check
 
-El contenedor incluye un health check que verifica cada 30 segundos que el servidor está respondiendo:
+### HTTPAceProxy Health Check
+
+El contenedor HTTPAceProxy incluye un health check que verifica cada 30 segundos que el servidor está respondiendo:
 
 ```bash
 # Ver el estado de salud
 docker inspect --format='{{.State.Health.Status}}' httpaceproxy
+```
+
+### AceServe Health Check (docker-compose-aio.yml)
+
+En la configuración all-in-one, el servicio AceServe tiene un health check que verifica:
+- **Puerto HTTP (6878)**: Comprueba que el puerto de streaming está abierto
+- **Puerto API (62062)**: Comprueba que la API de AceStream está disponible
+- **Frecuencia**: Cada 10 segundos
+- **Tiempo de inicio**: 30 segundos de gracia para que el motor arranque
+- **Reintentos**: 5 intentos antes de marcar como unhealthy
+
+El servicio HTTPAceProxy **espera automáticamente** a que AceServe esté saludable antes de iniciar, gracias a:
+
+```yaml
+depends_on:
+  aceserve:
+    condition: service_healthy   # Espera a que aceserve esté listo
+```
+
+**Verificar el estado de salud:**
+```bash
+# Ver estado de ambos servicios
+docker-compose ps
+
+# Ver estado específico de AceServe
+docker inspect --format='{{.State.Health.Status}}' aceserve-engine
+
+# Ver logs del healthcheck
+docker inspect aceserve-engine | jq '.[0].State.Health'
+```
+
+**Estados posibles:**
+- `starting` - El contenedor acaba de iniciar, esperando el primer check
+- `healthy` - Todos los checks pasaron correctamente
+- `unhealthy` - Falló después de varios reintentos
+
+**Qué verifica el healthcheck:**
+```bash
+nc -z 127.0.0.1 6878 && nc -z 127.0.0.1 62062
+```
+
+Este comando verifica que ambos puertos (HTTP 6878 y API 62062) están escuchando y disponibles.
+
+**Nota:** Usamos `127.0.0.1` en lugar de `localhost` porque algunos contenedores no resuelven correctamente localhost.
+
+**Verificación manual:**
+```bash
+# Verificar puerto HTTP
+curl -I http://localhost:6878
+
+# Verificar puerto API
+curl http://localhost:62062/webui/api/service?method=get_version
 ```
 
 ## Troubleshooting

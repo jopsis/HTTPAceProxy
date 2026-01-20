@@ -11,12 +11,20 @@ curl -O https://raw.githubusercontent.com/jopsis/HTTPAceProxy/master/docker-comp
 # Iniciar (incluye HTTPAceProxy + AceServe)
 docker-compose -f docker-compose-aio.yml up -d
 
+# El servicio HTTPAceProxy esperará automáticamente a que AceServe esté listo
+# Esto puede tardar 30-60 segundos la primera vez
+
+# Verificar estado
+docker-compose ps
+
 # Acceder
 # http://localhost:8888/newera.m3u8
 # http://localhost:8888/stat
 ```
 
 **Listo!** Ya tienes todo funcionando. Salta a la sección [URLs de acceso](#urls-de-acceso).
+
+**Nota:** HTTPAceProxy incluye un healthcheck que espera a que AceServe esté completamente listo antes de iniciar, evitando errores de conexión.
 
 **💡 Personalizar límites de conexión (opcional):**
 Si necesitas más clientes o canales simultáneos, edita `docker-compose-aio.yml` antes de iniciar:
@@ -187,6 +195,32 @@ docker-compose logs -f
 ### Verificar que el contenedor está corriendo
 ```bash
 docker-compose ps
+
+# Deberías ver algo como:
+# NAME                 STATUS
+# aceserve-engine      Up (healthy)
+# httpaceproxy         Up
+
+# Si aceserve muestra "Up (health: starting)", espera unos segundos más
+```
+
+### Verificar estado de salud de AceServe
+```bash
+# Ver estado de salud
+docker inspect --format='{{.State.Health.Status}}' aceserve-engine
+
+# Debe devolver: healthy
+```
+
+### Verificar manualmente los puertos de AceServe
+```bash
+# Verificar puerto HTTP (6878)
+curl -I http://localhost:6878
+
+# Verificar puerto API (62062)
+curl http://localhost:62062/webui/api/service?method=get_version
+
+# Ambos deben responder correctamente
 ```
 
 ### Entrar al contenedor

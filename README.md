@@ -52,6 +52,11 @@ docker-compose -f docker-compose-aio.yml up -d
 - `jopsis/aceserve:arm64-latest` - ARM64 (Raspberry Pi 4, Apple Silicon)
 - `jopsis/aceserve:arm32-latest` - ARM32 (Raspberry Pi 3 and older)
 
+**Features:**
+- Built-in healthcheck - HTTPAceProxy waits for AceServe to be ready before starting
+- Automatic dependency management with `depends_on: service_healthy`
+- No manual configuration needed
+
 ### Access
 
 Once running, access HTTPAceProxy at:
