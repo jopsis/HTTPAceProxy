@@ -11,6 +11,12 @@ services:
     restart: unless-stopped
     networks:
       - aceproxy-net
+    healthcheck:
+      test: ["CMD", "sh", "-c", "wget --spider -q http://localhost:62062/webui/api/service?method=get_version || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
   ## For ARM64 systems (Raspberry Pi 4, Apple Silicon):
   # aceserve:
   #   image: jopsis/aceserve:arm64-latest
@@ -22,6 +28,12 @@ services:
   #   restart: unless-stopped
   #   networks:
   #     - aceproxy-net
+  #   healthcheck:
+  #     test: ["CMD", "sh", "-c", "wget --spider -q http://localhost:62062/webui/api/service?method=get_version || exit 1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
   ## For ARM32 systems (Raspberry Pi 3 and older):
   # aceserve:
   #   image: jopsis/aceserve:arm32-latest
@@ -33,6 +45,12 @@ services:
   #   restart: unless-stopped
   #   networks:
   #     - aceproxy-net
+  #   healthcheck:
+  #     test: ["CMD", "sh", "-c", "wget --spider -q http://localhost:62062/webui/api/service?method=get_version || exit 1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
   httproxy:
     build:
       context: .
@@ -49,7 +67,8 @@ services:
       - MAX_CONNECTIONS=10           # Total clients (Personal: 10, Family: 25, Server: 100+)
       - MAX_CONCURRENT_CHANNELS=5    # Different channels (Personal: 3-5, Family: 5-10, Server: 15-20)
     depends_on:
-      - aceserve
+      aceserve:
+        condition: service_healthy   # Wait for aceserve to be healthy before starting
     restart: unless-stopped
     networks:
       - aceproxy-net
