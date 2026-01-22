@@ -15,10 +15,6 @@ La forma más sencilla es usar `docker-compose-aio.yml` que incluye HTTPAceProxy
 # Descargar el archivo compose
 curl -O https://raw.githubusercontent.com/jopsis/HTTPAceProxy/master/docker-compose-aio.yml
 
-# Editar para descomentar tu arquitectura (x64 por defecto)
-# - x64-latest: AMD64/Intel
-# - arm64-latest: Raspberry Pi 4, Apple Silicon
-# - arm32-latest: Raspberry Pi 3 y anteriores
 
 # Iniciar ambos servicios
 docker-compose -f docker-compose-aio.yml up -d
