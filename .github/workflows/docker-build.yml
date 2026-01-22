@@ -32,7 +32,7 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64
           push: true
-          tags: jopsis/httpaceproxy:latest-amd64
+          tags: jopsis/httpaceproxy:latest
           cache-from: type=gha,scope=amd64
           cache-to: type=gha,mode=max,scope=amd64
 
@@ -61,7 +61,7 @@ jobs:
           file: ./Dockerfile
           platforms: linux/arm64
           push: true
-          tags: jopsis/httpaceproxy:latest-arm64
+          tags: jopsis/httpaceproxy:latest
           cache-from: type=gha,scope=arm64
           cache-to: type=gha,mode=max,scope=arm64
 
@@ -90,30 +90,13 @@ jobs:
           file: ./Dockerfile
           platforms: linux/arm/v7
           push: true
-          tags: jopsis/httpaceproxy:latest-armv7
+          tags: jopsis/httpaceproxy:latest
           cache-from: type=gha,scope=armv7
           cache-to: type=gha,mode=max,scope=armv7
 
-  create-manifest:
-    runs-on: ubuntu-latest
-    needs: [build-amd64, build-arm64, build-armv7]
-    steps:
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Create and push manifest
-        run: |
-          docker buildx imagetools create -t jopsis/httpaceproxy:latest \
-            jopsis/httpaceproxy:latest-amd64 \
-            jopsis/httpaceproxy:latest-arm64 \
-            jopsis/httpaceproxy:latest-armv7
-
   update-docs:
     runs-on: ubuntu-latest
-    needs: create-manifest
+    needs: [build-amd64, build-arm64, build-armv7]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
