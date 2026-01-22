@@ -12,7 +12,13 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
-    ca-certificates && \
+    ca-certificates \
+    gcc \
+    g++ \
+    make \
+    python3-dev \
+    libffi-dev \
+    libev-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
