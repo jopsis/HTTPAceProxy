@@ -18,7 +18,7 @@ docker-compose -f docker-compose-aio.yml up -d
 docker-compose ps
 
 # Acceder
-# http://localhost:8888/newera.m3u8
+# http://localhost:8888/newera
 # http://localhost:8888/stat
 ```
 
@@ -86,7 +86,7 @@ Ver [ACESTREAM-SETUP.md](ACESTREAM-SETUP.md) para más detalles.
 ./start.sh
 ```
 
-Eso es todo! El servidor estará disponible en: `http://localhost:8888/newera.m3u8`
+Eso es todo! El servidor estará disponible en: `http://localhost:8888/newera`
 
 ## Inicio manual
 
@@ -132,9 +132,9 @@ docker run -d -p 8888:8888 --name httpaceproxy httpaceproxy
 ## URLs de acceso
 
 **Playlists:**
-- NewEra (322 canales deportivos): http://localhost:8888/newera.m3u8
-- Elcano (71 canales seleccionados): http://localhost:8888/elcano.m3u8
-- AcePL (1000+ canales de Acestream API): http://localhost:8888/acepl.m3u8
+- NewEra (322 canales deportivos): http://localhost:8888/newera
+- Elcano (71 canales seleccionados): http://localhost:8888/elcano
+- AcePL (1000+ canales de Acestream API): http://localhost:8888/acepl
 - Canal individual: http://localhost:8888/newera/channel/NOMBRE_CANAL.m3u8
 
 **Dashboards:**
@@ -146,17 +146,17 @@ docker run -d -p 8888:8888 --name httpaceproxy httpaceproxy
 ### VLC
 ```
 Media → Open Network Stream
-URL: http://localhost:8888/newera.m3u8
+URL: http://localhost:8888/newera
 ```
 
 ### KODI
 ```
 Add-ons → PVR IPTV Simple Client
-M3U Play List URL: http://localhost:8888/newera.m3u8
+M3U Play List URL: http://localhost:8888/newera
 ```
 
 ### Navegador
-Simplemente abre: http://localhost:8888/newera.m3u8
+Simplemente abre: http://localhost:8888/newera
 
 ## Configuración
 

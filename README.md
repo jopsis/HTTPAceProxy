@@ -70,9 +70,9 @@ http://localhost:8888/statplugin    # Channel browser with peer checking
 
 **Playlists:**
 ```
-http://localhost:8888/newera.m3u8   (322 sports channels)
-http://localhost:8888/elcano.m3u8   (71 curated channels)
-http://localhost:8888/acepl.m3u8    (1000+ channels from Acestream API)
+http://localhost:8888/newera   (322 sports channels)
+http://localhost:8888/elcano   (71 curated channels)
+http://localhost:8888/acepl    (1000+ channels from Acestream API)
 ```
 
 ## 📖 Documentation
@@ -106,7 +106,7 @@ http://localhost:8888/elcano/channel/Eurosport%201.ts
 
 ```bash
 # Open Network Stream (Ctrl+N)
-vlc "http://localhost:8888/newera.m3u8"
+vlc "http://localhost:8888/newera"
 
 # Or command line
 vlc "http://localhost:8888/content_id/HASH/stream.ts"
@@ -117,7 +117,7 @@ vlc "http://localhost:8888/content_id/HASH/stream.ts"
 1. Install **PVR IPTV Simple Client**
 2. Configure → Add-ons → My Add-ons → PVR clients
 3. PVR IPTV Simple Client → Configure
-4. M3U Play List URL: `http://localhost:8888/newera.m3u8`
+4. M3U Play List URL: `http://localhost:8888/newera`
 
 ## 👥 Multi-Client & Multi-Channel Support
 

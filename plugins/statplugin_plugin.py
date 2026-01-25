@@ -90,7 +90,6 @@ class Statplugin(object):
                 continue
 
             # Skip if we already processed this plugin instance
-            # (handles cases like 'newera' and 'newera.m3u8' being the same instance)
             plugin_id = id(plugin)
             if plugin_id in processed_plugins:
                 continue
@@ -100,9 +99,9 @@ class Statplugin(object):
             if not hasattr(plugin, 'channels') or not plugin.channels:
                 continue
 
-            # Use the shortest handler name for this plugin (prefer 'newera' over 'newera.m3u8')
+            # Get the handler name for this plugin
             plugin_handlers = [h for h, p in self.AceProxy.pluginshandlers.items() if id(p) == plugin_id]
-            plugin_name = min(plugin_handlers, key=len) if plugin_handlers else handler_name
+            plugin_name = plugin_handlers[0] if plugin_handlers else handler_name
 
             self.logger.debug('[Statplugin]: Processing plugin: %s' % plugin_name)
 

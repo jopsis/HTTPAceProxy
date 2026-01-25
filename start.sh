@@ -46,7 +46,7 @@ if curl -s http://localhost:8888/stat > /dev/null; then
     echo "================================================"
     echo ""
     echo "Access URLs:"
-    echo "  - Playlist: http://localhost:8888/newera.m3u8"
+    echo "  - Playlist: http://localhost:8888/newera"
     echo "  - Stats:    http://localhost:8888/stat"
     echo ""
     echo "Commands:"

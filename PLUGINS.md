@@ -17,13 +17,12 @@ Plugin que proporciona acceso a una lista extensa de canales deportivos.
 **Playlist completa:**
 ```
 http://localhost:8888/newera
-http://localhost:8888/newera.m3u8
 ```
 
 **Canal individual:**
 ```
 http://localhost:8888/newera/channel/DAZN%201%20FHD%20--%3E%20NEW%20ERA.m3u8
-http://localhost:8888/newera.m3u8/channel/DAZN%201%20FHD%20--%3E%20NEW%20ERA.ts
+http://localhost:8888/newera/channel/DAZN%201%20FHD%20--%3E%20NEW%20ERA.ts
 ```
 
 ### Configuración:
@@ -87,13 +86,12 @@ Plugin alternativo con una lista curada de canales deportivos.
 **Playlist completa:**
 ```
 http://localhost:8888/elcano
-http://localhost:8888/elcano.m3u8
 ```
 
 **Canal individual:**
 ```
 http://localhost:8888/elcano/channel/Eurosport%201.m3u8
-http://localhost:8888/elcano.m3u8/channel/M+%20LaLiga.ts
+http://localhost:8888/elcano/channel/M+%20LaLiga.ts
 ```
 
 ### Configuración:
@@ -152,13 +150,12 @@ Plugin que obtiene canales directamente desde la API oficial de Acestream.
 **Playlist completa:**
 ```
 http://localhost:8888/acepl
-http://localhost:8888/acepl.m3u8
 ```
 
 **Canal individual:**
 ```
 http://localhost:8888/acepl/channel/M.%20Liga%20de%20Campeones.m3u8
-http://localhost:8888/acepl.m3u8/channel/DAZN%201%20Bar%20HD%20%5BDE%5D.ts
+http://localhost:8888/acepl/channel/DAZN%201%20Bar%20HD%20%5BDE%5D.ts
 ```
 
 ### Configuración:
@@ -236,17 +233,17 @@ categories_filter = ['movies']
 ### En VLC:
 ```
 Media → Open Network Stream
-URL: http://localhost:8888/newera.m3u8
-URL: http://localhost:8888/elcano.m3u8
-URL: http://localhost:8888/acepl.m3u8
+URL: http://localhost:8888/newera
+URL: http://localhost:8888/elcano
+URL: http://localhost:8888/acepl
 ```
 
 ### En KODI:
 ```
 Add-ons → PVR IPTV Simple Client
-M3U Play List URL: http://localhost:8888/newera.m3u8
-M3U Play List URL: http://localhost:8888/elcano.m3u8
-M3U Play List URL: http://localhost:8888/acepl.m3u8
+M3U Play List URL: http://localhost:8888/newera
+M3U Play List URL: http://localhost:8888/elcano
+M3U Play List URL: http://localhost:8888/acepl
 ```
 
 ### En cualquier app IPTV:
@@ -254,9 +251,9 @@ Usa las URLs directamente en tu aplicación favorita.
 
 ### Desde navegador:
 Simplemente abre las URLs en tu navegador:
-- http://localhost:8888/newera.m3u8
-- http://localhost:8888/elcano.m3u8
-- http://localhost:8888/acepl.m3u8
+- http://localhost:8888/newera
+- http://localhost:8888/elcano
+- http://localhost:8888/acepl
 
 ---
 

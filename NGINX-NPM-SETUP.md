@@ -263,12 +263,12 @@ https://your-domain.com/stat
 
 **Playlist NewEra (322 canales):**
 ```
-https://your-domain.com/newera.m3u8
+https://your-domain.com/newera
 ```
 
 **Playlist Elcano (68 canales):**
 ```
-https://your-domain.com/elcano.m3u8
+https://your-domain.com/elcano
 ```
 
 **Canal individual:**

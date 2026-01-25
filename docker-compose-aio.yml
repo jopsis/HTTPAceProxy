@@ -17,6 +17,10 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    # dns:
+      # - 74.115.172.133
+      # - 1.1.1.1
+      # - 1.0.0.1
   httproxy:
     # build:
     #   context: .

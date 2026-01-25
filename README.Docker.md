@@ -59,7 +59,7 @@ docker-compose restart
 docker-compose ps
 
 # Acceder a la playlist
-curl http://localhost:8888/newera.m3u8
+curl http://localhost:8888/newera
 
 # Ver estadísticas
 curl http://localhost:8888/stat
@@ -117,8 +117,7 @@ docker rm httpaceproxy
 
 Una vez iniciado el contenedor, la aplicación estará disponible en:
 
-- **Playlist principal**: `http://localhost:8888/newera.m3u8`
-- **Playlist alternativa**: `http://localhost:8888/newera`
+- **Playlist**: `http://localhost:8888/newera`
 - **Panel de estadísticas**: `http://localhost:8888/stat`
 - **Canal individual**: `http://localhost:8888/newera/channel/NOMBRE_CANAL.m3u8`
 
@@ -391,16 +390,16 @@ Para producción, considera:
 
 ```
 Media → Open Network Stream
-URL: http://IP_DEL_SERVIDOR:8888/newera.m3u8
+URL: http://IP_DEL_SERVIDOR:8888/newera
 ```
 
 ### En Kodi
 
 ```
 Add-ons → PVR IPTV Simple Client
-M3U Play List URL: http://IP_DEL_SERVIDOR:8888/newera.m3u8
+M3U Play List URL: http://IP_DEL_SERVIDOR:8888/newera
 ```
 
 ### En cualquier app IPTV
 
-Simplemente usa la URL: `http://IP_DEL_SERVIDOR:8888/newera.m3u8`
+Simplemente usa la URL: `http://IP_DEL_SERVIDOR:8888/newera`

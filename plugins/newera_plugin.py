@@ -18,7 +18,7 @@ import config.newera as config
 
 class Newera(object):
 
-    handlers = ('newera', 'newera.m3u8')
+    handlers = ('newera',)
 
     def __init__(self, AceConfig, AceProxy):
         self.picons = self.channels = self.playlist = self.etag = None
@@ -135,8 +135,7 @@ class Newera(object):
         logging.debug('[%s]: Request type: %s, ext: %s' % (self.__class__.__name__, connection.reqtype, connection.ext))
 
         # Handle individual channel requests (/newera/channel/CHANNEL_NAME.ts or .m3u8)
-        if connection.path.startswith('/{reqtype}/channel/'.format(**connection.__dict__)) or \
-           connection.path.startswith('/newera.m3u8/channel/'):
+        if connection.path.startswith('/{reqtype}/channel/'.format(**connection.__dict__)):
            # Accept both .ts and .m3u8 extensions for channels
            if not (connection.path.endswith('.ts') or connection.path.endswith('.m3u8')):
               connection.send_error(404, 'Invalid path: {path} - must end with .ts or .m3u8'.format(**connection.__dict__), logging.ERROR)
@@ -169,10 +168,8 @@ class Newera(object):
         else:
            logging.debug('[%s]: Exporting M3U playlist' % self.__class__.__name__)
            try:
-              # Use the original reqtype to build the channel path
-              channel_path = '/newera.m3u8/channel' if connection.reqtype == 'newera.m3u8' else '/newera/channel'
               exported = self.playlist.exportm3u( hostport=connection.headers['Host'],
-                                                  path='' if not self.channels else channel_path,
+                                                  path='' if not self.channels else '/newera/channel',
                                                   header=config.m3uheadertemplate,
                                                   query=connection.query
                                                  )
@@ -182,7 +179,7 @@ class Newera(object):
               connection.send_error(500, 'Error exporting playlist: %s' % str(e), logging.ERROR)
               return
            # Use proper Content-Type for M3U8
-           content_type = 'application/vnd.apple.mpegurl; charset=utf-8' if connection.reqtype == 'newera.m3u8' else 'audio/mpegurl; charset=utf-8'
+           content_type = 'audio/mpegurl; charset=utf-8'
            response_headers = {'Content-Type': content_type, 'Connection': 'close', 'Access-Control-Allow-Origin': '*'}
            try:
               h = connection.headers.get('Accept-Encoding').split(',')[0]

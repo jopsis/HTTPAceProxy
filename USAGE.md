@@ -53,12 +53,12 @@ Usa las playlists curadas de los plugins:
 
 **NewEra (322 canales):**
 ```
-http://localhost:8888/newera.m3u8
+http://localhost:8888/newera
 ```
 
 **Elcano (68 canales):**
 ```
-http://localhost:8888/elcano.m3u8
+http://localhost:8888/elcano
 ```
 
 ### 5. Canales Individuales de Plugins
@@ -74,11 +74,11 @@ http://localhost:8888/PLUGIN/channel/NOMBRE_CANAL.EXTENSION
 ```
 # NewEra
 http://localhost:8888/newera/channel/DAZN%201%20FHD.m3u8
-http://localhost:8888/newera.m3u8/channel/M+%20LaLiga.ts
+http://localhost:8888/newera/channel/M+%20LaLiga.ts
 
 # Elcano
 http://localhost:8888/elcano/channel/Eurosport%201.m3u8
-http://localhost:8888/elcano.m3u8/channel/M+%20Deportes.ts
+http://localhost:8888/elcano/channel/M+%20Deportes.ts
 ```
 
 ## 📺 Extensiones Soportadas
@@ -112,13 +112,13 @@ Pega la URL: http://localhost:8888/content_id/HASH/stream.ts
 **Método 2: Playlist**
 ```
 Media → Open Network Stream
-Pega la URL: http://localhost:8888/newera.m3u8
+Pega la URL: http://localhost:8888/newera
 ```
 
 **Método 3: Desde línea de comandos**
 ```bash
 vlc http://localhost:8888/content_id/55ff9ee631af351f365f51cf3601695bf1fd20f3/stream.ts
-vlc http://localhost:8888/newera.m3u8
+vlc http://localhost:8888/newera
 ```
 
 ### KODI
@@ -129,7 +129,7 @@ vlc http://localhost:8888/newera.m3u8
 2. Configurar → Add-ons → My Add-ons → PVR clients
 3. PVR IPTV Simple Client → Configure
 4. General → Location: Remote Path
-5. M3U Play List URL: http://localhost:8888/newera.m3u8
+5. M3U Play List URL: http://localhost:8888/newera
 6. Guardar y habilitar
 ```
 
@@ -137,8 +137,8 @@ vlc http://localhost:8888/newera.m3u8
 
 Usa cualquiera de estas URLs en tu app IPTV favorita:
 ```
-http://SERVIDOR_IP:8888/newera.m3u8
-http://SERVIDOR_IP:8888/elcano.m3u8
+http://SERVIDOR_IP:8888/newera
+http://SERVIDOR_IP:8888/elcano
 ```
 
 Apps compatibles:
@@ -176,7 +176,7 @@ ipconfig
 2. **Usa la IP en lugar de localhost:**
 ```
 # Si tu IP es 192.168.1.100
-http://192.168.1.100:8888/newera.m3u8
+http://192.168.1.100:8888/newera
 http://192.168.1.100:8888/content_id/HASH/stream.ts
 ```
 
@@ -233,7 +233,7 @@ vlc "http://localhost:8888/pid/4955867fad3bc92e5b4c36045699fc277800fb18/stream.t
 ```
 1. Abrir IPTV Smarters
 2. Add New User → Load your playlist
-3. Playlist URL: http://192.168.1.100:8888/newera.m3u8
+3. Playlist URL: http://192.168.1.100:8888/newera
 4. Playlist Name: NewEra
 5. Add
 ```
@@ -267,7 +267,7 @@ O usa una herramienta online: https://www.urlencoder.org/
 curl -I http://localhost:8888/stat
 
 # Verificar que una playlist se descarga
-curl http://localhost:8888/newera.m3u8 | head -10
+curl http://localhost:8888/newera | head -10
 
 # Verificar un content_id específico
 curl -I "http://localhost:8888/content_id/55ff9ee631af351f365f51cf3601695bf1fd20f3/stream.ts"

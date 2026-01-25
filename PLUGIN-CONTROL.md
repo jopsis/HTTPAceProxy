@@ -244,8 +244,8 @@ environment:
 **Resultado:**
 - ✅ Acceso a `http://localhost:8888/stat`
 - ✅ Acceso a `http://localhost:8888/statplugin`
-- ❌ No disponible `http://localhost:8888/newera.m3u8`
-- ❌ No disponible `http://localhost:8888/acepl.m3u8`
+- ❌ No disponible `http://localhost:8888/newera`
+- ❌ No disponible `http://localhost:8888/acepl`
 
 ### Caso 2: Solo quiero la API oficial (AcePL)
 
@@ -256,7 +256,7 @@ environment:
 ```
 
 **Resultado:**
-- ✅ Acceso a `http://localhost:8888/acepl.m3u8` (1000+ canales)
+- ✅ Acceso a `http://localhost:8888/acepl` (1000+ canales)
 - ✅ Acceso a dashboards
 - ❌ No disponible NewEra ni Elcano
 
@@ -269,8 +269,8 @@ environment:
 ```
 
 **Resultado:**
-- ✅ Acceso a `http://localhost:8888/newera.m3u8` (322 canales)
-- ✅ Acceso a `http://localhost:8888/elcano.m3u8` (71 canales)
+- ✅ Acceso a `http://localhost:8888/newera` (322 canales)
+- ✅ Acceso a `http://localhost:8888/elcano` (71 canales)
 - ✅ Acceso a dashboards
 - ❌ No disponible AcePL
 
