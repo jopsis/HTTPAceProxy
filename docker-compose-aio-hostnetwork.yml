@@ -1,14 +1,13 @@
 services:
+  ## Host network mode - Direct access to host network stack
+  ## This configuration is useful for local development or when you need direct network access
+  ## Note: Port mappings are not needed/ignored when using host network mode
+
   aceserve:
     image: jopsis/aceserve:latest
     container_name: aceserve-engine
-    ports:
-      - "6878:6878"    # AceStream HTTP port
-      - "62062:62062"  # AceStream API port
-      - "8621:8621"   # AceStream P2P port
+    network_mode: host
     restart: unless-stopped
-    networks:
-      - aceproxy-net
     healthcheck:
       test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 6878 && nc -z 127.0.0.1 62062 || exit 1"]
       interval: 10s
@@ -25,10 +24,10 @@ services:
     #   dockerfile: Dockerfile
     image: jopsis/httpaceproxy:latest
     container_name: httpaceproxy
-    ports:
-      - "8888:8888"    # HTTPAceProxy web interface
+    network_mode: host
     environment:
-      - ACE_HOST=aceserve
+      # With host network mode, services communicate via localhost
+      - ACE_HOST=127.0.0.1
       - ACE_API_PORT=62062
       - ACE_HTTP_PORT=6878
       # Connection limits - Adjust based on your needs (see CONNECTION-LIMITS.md)
@@ -52,9 +51,13 @@ services:
       retries: 3
       start_period: 10s
 
-    networks:
-      - aceproxy-net
+# Note: No networks section needed when using host network mode
+# All services share the host's network stack and communicate via localhost
 
-networks:
-  aceproxy-net:
-    driver: bridge
+## IMPORTANT: Host network mode notes
+## - Services will bind directly to host ports (6878, 62062, 8621, 8888)
+## - Make sure these ports are not already in use on your host
+## - Access HTTPAceProxy at: http://localhost:8888
+## - Access AceStream Engine at: http://localhost:6878
+## - This mode is NOT supported on Docker Desktop for Mac/Windows (use bridge mode instead)
+## - On Linux, this provides better performance and simpler networking

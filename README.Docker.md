@@ -360,6 +360,42 @@ El contenedor usa una red bridge personalizada llamada `aceproxy-network`. Esto 
 - Comunicación con otros contenedores
 - DNS interno entre contenedores
 
+### Configuración de DNS personalizados para AceServe
+
+Puedes especificar servidores DNS personalizados para el contenedor AceServe mediante la clave `dns:` en tu `docker-compose.yml`. Así aseguras que toda la resolución DNS interna realizada por el daemon utilice los servidores definidos (en vez del resolvedor interno de Docker).
+
+**Ejemplo de docker-compose.yml con DNS personalizado:**
+```yaml
+services:
+  aceserve:
+    image: jopsis/aceserve:latest
+    container_name: aceserve
+    ports:
+      - "6878:6878"
+      - "8621:8621"
+      - "62062:62062"
+    restart: unless-stopped
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
+```
+
+Cuando se configura la opción `dns:`, el contenedor usará esas direcciones IP para todas las consultas DNS realizadas internamente. Los servidores realmente usados se detectan y quedan registrados en los logs de la aplicación al arrancar, por ejemplo:
+
+```
+2026-01-26 14:45:37|MainThread|bootstrap|Override DNS using ExtServers from comment: ['1.1.1.1', '1.0.0.1']
+```
+
+Si no especificas `dns:`, se utilizarán los servidores de nombres predeterminados por Docker.
+
+**Comprobar qué servidores DNS está usando el contenedor:**
+```sh
+docker logs aceserve | grep "Override DNS"
+```
+O bien revisa el archivo `/dev/shm/acestream.log` dentro del contenedor.
+
+Esta opción te permite controlar completamente la resolución DNS hecha por el motor AceServe y verificarlo en tiempo de ejecución.
+
 ## Seguridad
 
 - Los archivos de configuración se montan como solo lectura (`:ro`)
