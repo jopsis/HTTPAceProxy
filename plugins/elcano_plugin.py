@@ -34,100 +34,137 @@ class Elcano(object):
         try:
            s = requests.Session()
            s.mount('file://', FileAdapter())
-           with s.get(config.url, headers=self.headers, proxies=config.proxies, stream=False, timeout=60) as r:
-              if r.status_code != 304:
-                 if r.encoding is None: r.encoding = 'utf-8'
-                 self.headers['If-Modified-Since'] = time.strftime('%a, %d %b %Y %H:%M:%S %Z', time.gmtime(self.playlisttime))
-                 self.playlist = PlaylistGenerator(m3uchanneltemplate=config.m3uchanneltemplate)
-                 self.picons = {}
-                 self.channels = {}
-                 m = requests.auth.hashlib.md5()
-                 logging.info('[%s]: playlist %s downloaded' % (self.__class__.__name__, config.url))
 
-                 # Parse M3U format from Elcano
-                 # Format:
-                 # #EXTINF:-1 group-title="..." tvg-logo="..." tvg-id="..." tvg-name="...", Channel Name
-                 # acestream://hash
-                 lines = r.text.split('\n')
-                 i = 0
-                 while i < len(lines):
-                    line = lines[i].strip()
+           # Create temporary structures for new data
+           temp_playlist = PlaylistGenerator(m3uchanneltemplate=config.m3uchanneltemplate)
+           temp_picons = {}
+           temp_channels = {}
+           m = requests.auth.hashlib.md5()
+           has_new_content = False
 
-                    # Look for #EXTINF lines
-                    if line.startswith('#EXTINF:'):
-                       # Extract channel info
-                       itemdict = {}
+           # Process each URL
+           for url_index, playlist_url in enumerate(config.urls):
+               logging.info('[%s]: Downloading playlist %d/%d from %s' % (self.__class__.__name__, url_index + 1, len(config.urls), playlist_url))
 
-                       # Extract group-title
-                       if 'group-title="' in line:
-                          start = line.find('group-title="') + 13
-                          end = line.find('"', start)
-                          itemdict['group'] = line[start:end]
-                       else:
-                          itemdict['group'] = 'Unknown'
+               try:
+                   with s.get(playlist_url, headers=self.headers, proxies=config.proxies, stream=False, timeout=60) as r:
+                      if r.status_code != 304:
+                         has_new_content = True
+                         if r.encoding is None: r.encoding = 'utf-8'
+                         logging.info('[%s]: playlist %s downloaded' % (self.__class__.__name__, playlist_url))
 
-                       # Extract tvg-logo
-                       if 'tvg-logo="' in line:
-                          start = line.find('tvg-logo="') + 10
-                          end = line.find('"', start)
-                          itemdict['logo'] = line[start:end]
-                       else:
-                          itemdict['logo'] = ''
+                         # Parse M3U format from Elcano
+                         # Format:
+                         # #EXTINF:-1 group-title="..." tvg-logo="..." tvg-id="..." tvg-name="...", Channel Name
+                         # acestream://hash
+                         lines = r.text.split('\n')
+                         i = 0
+                         while i < len(lines):
+                            line = lines[i].strip()
 
-                       # Extract tvg-id
-                       if 'tvg-id="' in line:
-                          start = line.find('tvg-id="') + 8
-                          end = line.find('"', start)
-                          itemdict['tvgid'] = line[start:end]
-                       else:
-                          itemdict['tvgid'] = ''
+                            # Look for #EXTINF lines
+                            if line.startswith('#EXTINF:'):
+                               # Extract channel info
+                               itemdict = {}
 
-                       # Extract tvg-name
-                       if 'tvg-name="' in line:
-                          start = line.find('tvg-name="') + 10
-                          end = line.find('"', start)
-                          itemdict['tvg'] = line[start:end]
-                       else:
-                          itemdict['tvg'] = ''
+                               # Extract group-title
+                               if 'group-title="' in line:
+                                  start = line.find('group-title="') + 13
+                                  end = line.find('"', start)
+                                  itemdict['group'] = line[start:end]
+                               else:
+                                  itemdict['group'] = 'Unknown'
 
-                       # Extract channel name (after the last comma)
-                       if ',' in line:
-                          name = line[line.rfind(',') + 1:].strip()
-                          itemdict['name'] = name
-                          # If no tvg-name, use channel name
-                          if not itemdict['tvg']:
-                             itemdict['tvg'] = name
-                       else:
-                          itemdict['name'] = 'Unknown Channel'
-                          itemdict['tvg'] = 'Unknown Channel'
+                               # Extract tvg-logo
+                               if 'tvg-logo="' in line:
+                                  start = line.find('tvg-logo="') + 10
+                                  end = line.find('"', start)
+                                  itemdict['logo'] = line[start:end]
+                               else:
+                                  itemdict['logo'] = ''
 
-                       # Get the next line which should be the acestream URL
-                       i += 1
-                       if i < len(lines):
-                          url = lines[i].strip()
+                               # Extract tvg-id
+                               if 'tvg-id="' in line:
+                                  start = line.find('tvg-id="') + 8
+                                  end = line.find('"', start)
+                                  itemdict['tvgid'] = line[start:end]
+                               else:
+                                  itemdict['tvgid'] = ''
 
-                          # Check if it's an acestream URL
-                          if url.startswith('acestream://'):
-                             name = itemdict['name']
-                             self.channels[name] = url
-                             self.picons[name] = itemdict.get('logo', '')
-                             itemdict['url'] = quote(ensure_str(name), '')
+                               # Extract tvg-name
+                               if 'tvg-name="' in line:
+                                  start = line.find('tvg-name="') + 10
+                                  end = line.find('"', start)
+                                  itemdict['tvg'] = line[start:end]
+                               else:
+                                  itemdict['tvg'] = ''
 
-                             self.playlist.addItem(itemdict)
-                             m.update(ensure_binary(name))
+                               # Extract channel name (after the last comma)
+                               if ',' in line:
+                                  name = line[line.rfind(',') + 1:].strip()
+                                  itemdict['name'] = name
+                                  # If no tvg-name, use channel name
+                                  if not itemdict['tvg']:
+                                     itemdict['tvg'] = name
+                               else:
+                                  itemdict['name'] = 'Unknown Channel'
+                                  itemdict['tvg'] = 'Unknown Channel'
 
-                    i += 1
+                               # Get the next line which should be the acestream URL
+                               i += 1
+                               if i < len(lines):
+                                  url = lines[i].strip()
 
-                 self.etag = '"' + m.hexdigest() + '"'
-                 logging.info('[%s]: plugin playlist generated with %d channels' % (self.__class__.__name__, len(self.channels)))
+                                  # Check if it's an acestream URL
+                                  if url.startswith('acestream://'):
+                                     name = itemdict['name']
+                                     # Deduplicate: append (2), (3)... if name already exists with a different URL
+                                     unique_name = name
+                                     counter = 2
+                                     is_exact_dup = False
+                                     while unique_name in temp_channels:
+                                         if temp_channels[unique_name] == url:
+                                             is_exact_dup = True
+                                             break
+                                         unique_name = '%s (%d)' % (name, counter)
+                                         counter += 1
+                                     if not is_exact_dup:
+                                         itemdict['name'] = unique_name
+                                         if not itemdict['tvg'] or itemdict['tvg'] == name:
+                                             itemdict['tvg'] = unique_name
+                                         temp_channels[unique_name] = url
+                                         temp_picons[unique_name] = itemdict.get('logo', '')
+                                         itemdict['url'] = quote(ensure_str(unique_name), '')
+                                         temp_playlist.addItem(itemdict)
+                                         m.update(ensure_binary(unique_name))
 
-              self.playlisttime = time.time()
+                            i += 1
 
-        except requests.exceptions.RequestException as e:
-           logging.error("[%s]: can't download %s playlist! Error: %s" % (self.__class__.__name__, config.url, str(e)))
-           return False
+                         logging.info('[%s]: Parsed %d channels from %s' % (self.__class__.__name__, len(temp_channels), playlist_url))
+                      else:
+                         logging.info('[%s]: Playlist %s not modified (304)' % (self.__class__.__name__, playlist_url))
+
+               except requests.exceptions.RequestException as e:
+                   logging.error("[%s]: Can't download playlist from %s! Error: %s" % (self.__class__.__name__, playlist_url, str(e)))
+                   # Continue with next URL
+                   continue
+
+           # After processing all URLs
+           if has_new_content:
+               # Update permanent structures only if we got new content
+               self.playlist = temp_playlist
+               self.picons = temp_picons
+               self.channels = temp_channels
+               self.etag = '"' + m.hexdigest() + '"'
+               self.headers['If-Modified-Since'] = time.strftime('%a, %d %b %Y %H:%M:%S %Z', time.gmtime())
+               logging.info('[%s]: Unified playlist generated with %d total channels from %d sources' % (self.__class__.__name__, len(self.channels), len(config.urls)))
+           else:
+               logging.info('[%s]: All playlists returned 304 Not Modified, keeping existing %d channels' % (self.__class__.__name__, len(self.channels) if self.channels else 0))
+
+           self.playlisttime = time.time()
+
         except Exception as e:
-           logging.error("[%s]: Error parsing playlist: %s" % (self.__class__.__name__, str(e)))
+           logging.error("[%s]: Error processing playlists: %s" % (self.__class__.__name__, str(e)))
            logging.error(traceback.format_exc())
            return False
 

@@ -11,11 +11,19 @@ import os
 
 proxies = {}
 
-# Insert your Elcano playlist URL here or path to file ('file:///path/to/file' or 'file:///C://path//to//file' for Windows OS)
-# Can be overridden with ELCANO_PLAYLIST_URL environment variable
-# Old URL (kept as backup): https://acestream-ids.vercel.app/hashes_acestream.m3u
-# url = 'https://ipfs.io/ipns/k51qzi5uqu5di462t7j4vu4akwfhvtjhy88qbupktvoacqfqe9uforjvhyi4wr/hashes_acestream.m3u'
-url = os.getenv('ELCANO_PLAYLIST_URL', 'https://ipfs.io/ipns/k51qzi5uqu5di462t7j4vu4akwfhvtjhy88qbupktvoacqfqe9uforjvhyi4wr/hashes_acestream.m3u')
+# Elcano playlist URLs - multiple sources will be merged
+# Can be overridden with ELCANO_PLAYLIST_URL environment variable (comma-separated)
+# Old single URL (kept as backup): https://acestream-ids.vercel.app/hashes_acestream.m3u
+urls_env = os.getenv('ELCANO_PLAYLIST_URL', '')
+if urls_env:
+    # If env var is set, parse comma-separated URLs
+    urls = [u.strip() for u in urls_env.split(',') if u.strip()]
+else:
+    # Default: use both IPFS sources
+    urls = [
+        'https://ipfs.io/ipns/k51qzi5uqu5di462t7j4vu4akwfhvtjhy88qbupktvoacqfqe9uforjvhyi4wr/hashes_acestream.m3u',
+        'https://ipfs.io/ipns/k51qzi5uqu5dh5qej4b9wlcr5i6vhc7rcfkekhrxqek5c9lk6gdaiik820fecs/hashes_acestream.m3u'
+    ]
 
 # Download playlist every N minutes to keep it fresh
 # 0 = disabled (will download once on startup)

@@ -133,30 +133,63 @@ class Statplugin(object):
         This avoids dictionary key collisions that hide duplicate channel names
         Returns: list of channels or None if not available
         '''
-        # Known JSON URLs for plugins
+        # Known JSON URLs for plugins (can have multiple sources)
         json_urls = {
-            'elcano': 'https://ipfs.io/ipns/k51qzi5uqu5di462t7j4vu4akwfhvtjhy88qbupktvoacqfqe9uforjvhyi4wr/hashes.json',
+            'elcano': [
+                'https://ipfs.io/ipns/k51qzi5uqu5di462t7j4vu4akwfhvtjhy88qbupktvoacqfqe9uforjvhyi4wr/hashes.json',
+                'https://ipfs.io/ipns/k51qzi5uqu5dh5qej4b9wlcr5i6vhc7rcfkekhrxqek5c9lk6gdaiik820fecs/hashes.json'
+            ],
             # Add more plugins here as needed
         }
 
-        json_url = json_urls.get(plugin_name)
-        if not json_url:
+        json_url_list = json_urls.get(plugin_name)
+        if not json_url_list:
             return None  # No JSON source available
+
+        # If single URL, convert to list
+        if isinstance(json_url_list, str):
+            json_url_list = [json_url_list]
+
+        # Fetch and merge all JSON sources
+        all_hashes = []
+        seen_hashes = set()  # Track unique content IDs to avoid duplicates
 
         try:
             import requests
-            self.logger.debug('[Statplugin]: Fetching JSON from %s' % json_url)
-            r = requests.get(json_url, timeout=10)
-            r.raise_for_status()
+            for json_url in json_url_list:
+                try:
+                    self.logger.debug('[Statplugin]: Fetching JSON from %s' % json_url)
+                    r = requests.get(json_url, timeout=10)
+                    r.raise_for_status()
 
-            data = r.json()
-            hashes = data.get('hashes', [])
+                    data = r.json()
+                    hashes = data.get('hashes', [])
 
-            if not hashes:
-                self.logger.warning('[Statplugin]: JSON has no hashes array')
+                    if not hashes:
+                        self.logger.warning('[Statplugin]: JSON from %s has no hashes array' % json_url)
+                        continue
+
+                    # Add unique hashes only
+                    for item in hashes:
+                        content_id = item.get('hash')
+                        if content_id and content_id not in seen_hashes:
+                            all_hashes.append(item)
+                            seen_hashes.add(content_id)
+
+                    self.logger.info('[Statplugin]: Found %d channels from %s' % (len(hashes), json_url))
+
+                except Exception as e:
+                    self.logger.error('[Statplugin]: Failed to fetch %s: %s' % (json_url, str(e)))
+                    continue
+
+            if not all_hashes:
+                self.logger.warning('[Statplugin]: No channels found in any JSON source')
                 return None
 
-            self.logger.info('[Statplugin]: Found %d channels in JSON for plugin %s' % (len(hashes), plugin_name))
+            self.logger.info('[Statplugin]: Total %d unique channels from %d sources for plugin %s' % (len(all_hashes), len(json_url_list), plugin_name))
+
+            # Use unified hashes list
+            hashes = all_hashes
 
             channels_list = []
             for item in hashes:
