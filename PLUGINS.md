@@ -226,6 +226,53 @@ min_availability = 0.9
 categories_filter = ['movies']
 ```
 
+## 🕵️ Plugin MisterChire
+
+Plugin que realiza scraping del sitio misterchire.com para obtener enlaces Ace Stream actualizados.
+
+### Características:
+- **Scraping dinámico:** Obtiene canales directamente de la web de MisterChire.
+- **Organización por Competencias:** Canales agrupados por ligas y competiciones (La Liga, Champions, Premier League, etc.).
+- **Variedad de Calidades:** Incluye múltiples opciones de calidad (1080p, 720p) extraídas de las imágenes de la web.
+- **Actualización Automática:** Se refresca periódicamente para asegurar que los enlaces funcionen.
+
+### URLs de acceso:
+
+**Playlist completa:**
+```
+http://localhost:8888/misterchire
+```
+
+**Canal individual:**
+```
+http://localhost:8888/misterchire/channel/La%20Liga%201%201080p.m3u8
+```
+
+---
+
+## 📦 Plugin AIO (All-In-One)
+
+Plugin agregador que combina los canales de todos los plugins activos en una única lista maestra.
+
+### Características:
+- **Lista Unificada:** Combina canales de NewEra, Elcano, MisterChire y otros plugins activos.
+- **Preservación de Metadatos:** Mantiene los grupos originales (`group-title`), logos e IDs de guía (EPG) de los plugins de origen.
+- **Generación Dinámica:** La lista se refresca en tiempo real en cada petición consultando el estado actual de los demás plugins.
+- **Eficiencia:** Resuelve las peticiones directamente al core de AceProxy para una reproducción más rápida.
+
+### URLs de acceso:
+
+**Playlist completa unificada:**
+```
+http://localhost:8888/aio
+```
+
+### Configuración:
+
+Edita `plugins/config/aio.py` para cambiar:
+- Plantilla de cabecera M3U.
+- URL de la guía de TV global (opcional).
+
 ---
 
 ## 🔧 Uso general
@@ -303,6 +350,12 @@ docker logs httpaceproxy | grep "Plugin loaded"
 - Verifica que el nombre del canal es correcto
 - Los nombres deben estar URL-encoded
 - Ejemplo: `M+ LaLiga` → `M%2B%20LaLiga`
+
+### ¿Necesitas ayuda o has encontrado un error?
+Como este proyecto es un fork, por favor abre los issues en:
+[https://github.com/jopsis/docker-acestream-aceserve/issues](https://github.com/jopsis/docker-acestream-aceserve/issues)
+
+**Importante:** Indica `httpaceproxy` en el título del issue para identificarlo correctamente.
 
 ---
 

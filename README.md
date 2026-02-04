@@ -70,9 +70,11 @@ http://localhost:8888/statplugin    # Channel browser with peer checking
 
 **Playlists:**
 ```
-http://localhost:8888/newera   (322 sports channels)
-http://localhost:8888/elcano   (71 curated channels)
-http://localhost:8888/acepl    (1000+ channels from Acestream API)
+http://localhost:8888/aio          (Combined All-In-One list)
+http://localhost:8888/misterchire   (Scraped from misterchire.com)
+http://localhost:8888/newera       (322 sports channels)
+http://localhost:8888/elcano       (71 curated channels)
+http://localhost:8888/acepl        (1000+ channels from Acestream API)
 ```
 
 ## 📖 Documentation
@@ -168,6 +170,8 @@ maxconcurrentchannels = 5  # Maximum different channels simultaneously
 
 | Plugin | Channels | Description | Source |
 |--------|----------|-------------|--------|
+| **AIO** | Combined | Master list combining all active content plugins | Internal |
+| **MisterChire** | 100+ | Dynamically scraped sports competitions | misterchire.com |
 | **NewEra** | 322 | Sports channels (La Liga, Champions, DAZN, NBA, F1, etc.) | IPFS |
 | **Elcano** | 71 | Curated sports selection | IPFS |
 | **AcePL** | 1000+ | Official Acestream API channels (Sports, Movies, Regional, etc.) | Acestream API |
@@ -514,14 +518,14 @@ This software is provided for legitimate uses only. The authors are not responsi
 - **GitHub Repository:** https://github.com/jopsis/HTTPAceProxy
 - **Docker Hub:** https://hub.docker.com/r/jopsis/httpaceproxy
 - **Ace Stream:** https://acestream.org
-- **Issue Tracker:** https://github.com/jopsis/HTTPAceProxy/issues
+- **Issue Tracker:** https://github.com/jopsis/docker-acestream-aceserve/issues (Include `httpaceproxy` in the title)
 
 ## 📈 Project Statistics
 
 - **Language:** Python 3.11
 - **Lines of Code:** ~9,000+
-- **Active Plugins:** 5 (NewEra, Elcano, AcePL, Stat, StatPlugin)
-- **Available Channels:** 1390+ (322 NewEra + 71 Elcano + 1000+ AcePL)
+- **Active Plugins:** 7 (AIO, MisterChire, NewEra, Elcano, AcePL, Stat, StatPlugin)
+- **Available Channels:** 1500+ (Combined from all sources)
 - **Concurrent Channels:** Up to 5 different streams simultaneously (configurable)
 - **Multi-Client:** Unlimited clients per channel
 - **Supported Architectures:** AMD64, ARM64, ARM32 (armv7)
