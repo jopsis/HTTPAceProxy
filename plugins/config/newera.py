@@ -13,7 +13,7 @@ proxies = {}
 
 # Insert your New Era playlist URL here or path to file ('file:///path/to/file' or 'file:///C://path//to//file' for Windows OS)
 # Can be overridden with NEWERA_PLAYLIST_URL environment variable
-url = os.getenv('NEWERA_PLAYLIST_URL', 'https://ipfs.io/ipns/k2k4r8oqlcjxsritt5mczkcn4mmvcmymbqw7113fz2flkrerfwfps004/data/listas/lista_fuera_iptv.m3u')
+url = os.getenv('NEWERA_PLAYLIST_URL', 'https://ipfs.io/ipns/k2k4r8oqlcjxsritt5mczkcn4mmvcmymbqw7113fz2flkrerfwfps004/data/listas/lista_iptv.m3u')
 
 # Download playlist every N minutes to keep it fresh
 # 0 = disabled (will download once on startup)

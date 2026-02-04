@@ -96,10 +96,28 @@ class Newera(object):
                        if i < len(lines):
                           url = lines[i].strip()
 
-                          # Check if it's an acestream URL
+                          # Check if it's an acestream URL (acestream:// or http://127.0.0.1:6878/ace/getstream?id=)
+                          acestream_url = None
                           if url.startswith('acestream://'):
+                             acestream_url = url
+                          elif '/ace/getstream?id=' in url or '/ace/getstream?infohash=' in url:
+                             # Extract acestream ID from HTTP URL format
+                             # Format: http://127.0.0.1:6878/ace/getstream?id=XXXXX
+                             parsed = urlparse(url)
+                             query_params = parsed.query.split('&')
+                             for param in query_params:
+                                if param.startswith('id='):
+                                   ace_id = param[3:]
+                                   acestream_url = 'acestream://' + ace_id
+                                   break
+                                elif param.startswith('infohash='):
+                                   ace_id = param[9:]
+                                   acestream_url = 'acestream://' + ace_id
+                                   break
+
+                          if acestream_url:
                              name = itemdict['name']
-                             self.channels[name] = url
+                             self.channels[name] = acestream_url
                              self.picons[name] = itemdict.get('logo', '')
                              itemdict['url'] = quote(ensure_str(name), '')
 
