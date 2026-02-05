@@ -36,8 +36,12 @@ services:
       - MAX_CONCURRENT_CHANNELS=5    # Different channels (Personal: 3-5, Family: 5-10, Server: 15-20)
       # Plugin control - Specify which plugins to enable
       # Options: 'all' (default), 'newera,acepl,stat', 'stat,statplugin', etc.
-      # Available: newera, elcano, acepl, stat, statplugin, misterchire
+      # Available: newera, elcano, acepl, stat, statplugin, misterchire, af1c1onados, aio
       - ENABLED_PLUGINS=newera,elcano,stat,statplugin,misterchire,af1c1onados,aio
+      # - ENABLED_PLUGINS=stat,statplugin,aio
+      # AIO Plugin Filter - Which plugins to include in the AIO unified playlist
+      # Options: 'all' (default, includes all enabled plugins), 'newera,elcano', etc. newera,elcano,misterchire,af1c1onados
+      - AIO_PLUGINS=newera,elcano,misterchire,af1c1onados
       # Plugin playlist URLs (optional - uses defaults if not set)
       # - NEWERA_PLAYLIST_URL=https://your-custom-url/playlist.m3u
       # - ELCANO_PLAYLIST_URL=https://your-custom-url/playlist.m3u

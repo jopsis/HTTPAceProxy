@@ -7,8 +7,23 @@ import os
 # Proxy settings (standard architecture)
 proxies = {}
 
-# TV Guide URL (optional, can be empty)
-tvgurl = ''
+# Plugins to include in AIO playlist
+# Can be overridden with AIO_PLUGINS environment variable (comma-separated)
+# Examples:
+#   AIO_PLUGINS=newera,elcano (only these two)
+#   AIO_PLUGINS=all (include all enabled plugins except system ones)
+#   AIO_PLUGINS= (empty, same as 'all')
+# If not set, defaults to all enabled plugins
+aio_plugins_env = os.getenv('AIO_PLUGINS', 'all').strip().lower()
+if aio_plugins_env == 'all' or aio_plugins_env == '':
+    # Include all enabled plugins (will be filtered in the plugin code)
+    included_plugins = None  # None means "all"
+else:
+    # Parse comma-separated list
+    included_plugins = [p.strip().lower() for p in aio_plugins_env.split(',') if p.strip()]
+
+# TV Guide URL
+tvgurl = 'https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/guiatv_sincolor0.xml.gz'
 
 # Shift the TV Guide time
 tvgshift = 0

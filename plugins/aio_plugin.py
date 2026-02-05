@@ -23,23 +23,35 @@ class Aio(object):
 
     def handle(self, connection):
         self.logger.debug('Generating AIO playlist for client: %s' % connection.clientip)
-        
+
         # Create a fresh generator for this request
         generator = PlaylistGenerator(m3uchanneltemplate=config.m3uchanneltemplate)
-        
+
         # Iterate over all loaded plugins in the proxy
         processed_plugins = set()
-        
+
         # Sorted keys for consistent order in playlist
         sorted_handlers = sorted(self.AceProxy.pluginshandlers.keys())
-        
+
+        # Log which plugins will be included
+        if config.included_plugins is None:
+            self.logger.debug('AIO mode: Including all enabled plugins')
+        else:
+            self.logger.debug('AIO mode: Including only: %s' % ', '.join(config.included_plugins))
+
         for handler_name in sorted_handlers:
             plugin = self.AceProxy.pluginshandlers[handler_name]
-            
+
             # Skip system plugins and self
             if handler_name in ('aio', 'stat', 'statplugin', 'torrenttv_api'):
                 continue
-                
+
+            # Skip if not in included list (if list is specified)
+            if config.included_plugins is not None:
+                if handler_name.lower() not in config.included_plugins:
+                    self.logger.debug('Skipping plugin %s (not in AIO_PLUGINS filter)' % handler_name)
+                    continue
+
             # Avoid processing the same plugin instance twice (one plugin can have multiple handlers)
             if id(plugin) in processed_plugins:
                 continue
