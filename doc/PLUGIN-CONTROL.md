@@ -67,6 +67,20 @@ ELCANO_PLAYLIST_URL=https://example.net/elcano.m3u
 
 Usa estas variables para probar mirrors, fuentes internas o copias propias. Los cambios requieren reiniciar el contenedor.
 
+## User-Agent de los Plugins
+
+Las descargas de los plugins usan por defecto el User-Agent `curl/8.5.0`.
+
+```env
+PLUGIN_USER_AGENT=curl/8.5.0
+```
+
+Notas:
+
+- Cloudflare (por ejemplo en `ipfs.io`) responde `403 Forbidden` a clientes que dicen ser un navegador pero cuya huella TLS/HTTP no lo es. Por eso el valor por defecto no simula un navegador.
+- Si una fuente exige otro valor, defínelo con `PLUGIN_USER_AGENT` (también se acepta `HTTP_USER_AGENT`).
+- El cambio requiere reiniciar el contenedor.
+
 ## Ejemplos Docker Compose
 
 Solo dashboards:

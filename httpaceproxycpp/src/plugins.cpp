@@ -12,11 +12,19 @@ namespace httpace {
 namespace {
 
 constexpr const char* kEpgUrl = "https://raw.githubusercontent.com/davidmuma/EPG_dobleM/master/guiatv_sincolor0.xml.gz";
-constexpr const char* kBrowserUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
+constexpr const char* kDefaultUserAgent = "curl/8.5.0";
 
 std::string env_or(const char* name, const std::string& fallback) {
     const char* value = std::getenv(name);
     return value && *value ? std::string(value) : fallback;
+}
+
+// Cloudflare (ipfs.io) answers 403 to clients whose User-Agent claims to be a browser
+// while their TLS/HTTP fingerprint does not match one, so the default is a plain
+// non-browser agent. PLUGIN_USER_AGENT overrides it if a source ever needs another value.
+const std::string& plugin_user_agent() {
+    static const std::string agent = env_or("PLUGIN_USER_AGENT", env_or("HTTP_USER_AGENT", kDefaultUserAgent));
+    return agent;
 }
 
 std::vector<std::string> env_csv_or(const char* name, const std::vector<std::string>& fallback) {
@@ -281,7 +289,7 @@ public:
 protected:
     bool refresh() override {
         auto url = env_or("NEWERA_PLAYLIST_URL", "https://ipfs.io/ipns/k2k4r8lm8tkmuxbc8lkmq1in3v0oya1p6pe9o5bu0hu30br5ko08k2gb/data/listas/lista_iptv.m3u");
-        auto response = http_client_.get(url, {{"User-Agent", kBrowserUserAgent}}, 60);
+        auto response = http_client_.get(url, {{"User-Agent", plugin_user_agent()}}, 60);
         PlaylistGenerator playlist(header_);
         std::map<std::string, std::string> channels;
         std::map<std::string, std::string> picons;
@@ -310,7 +318,7 @@ protected:
         std::map<std::string, std::string> picons;
         for (const auto& playlist_url : urls) {
             try {
-                auto response = http_client_.get(playlist_url, {{"User-Agent", kBrowserUserAgent}}, 60);
+                auto response = http_client_.get(playlist_url, {{"User-Agent", plugin_user_agent()}}, 60);
                 for (auto& item : parse_m3u_acestream_items(response.body, channels, picons)) {
                     playlist.add_item(item);
                 }
@@ -330,7 +338,7 @@ public:
         : PlaylistPlugin(std::move(cfg), client, "acepl", PlaylistGenerator::epg_header("", 0), 30) {}
 protected:
     bool refresh() override {
-        auto response = http_client_.get("https://api.acestream.me/all?api_version=1.0&api_key=test_api_key", {{"User-Agent", kBrowserUserAgent}}, 60);
+        auto response = http_client_.get("https://api.acestream.me/all?api_version=1.0&api_key=test_api_key", {{"User-Agent", plugin_user_agent()}}, 60);
         auto data = Json::parse(response.body);
         PlaylistGenerator playlist(header_, "#EXTINF:-1 group-title=\"{group}\" tvg-name=\"{name}\",{name}\n#EXTGRP:{group}\n{url}\n");
         std::map<std::string, std::string> channels;
@@ -382,11 +390,11 @@ private:
         url = normalize_github_blob_url(url);
         if (is_shortener_url(url)) {
             try {
-                auto response = http_client_.get(url, {{"User-Agent", kBrowserUserAgent}}, 10, true);
+                auto response = http_client_.get(url, {{"User-Agent", plugin_user_agent()}}, 10, true);
                 url = normalize_github_blob_url(response.url);
             } catch (...) {}
         }
-        auto response = http_client_.get(url, {{"User-Agent", kBrowserUserAgent}}, 20, true);
+        auto response = http_client_.get(url, {{"User-Agent", plugin_user_agent()}}, 20, true);
         return Json::parse(response.body);
     }
 
@@ -426,7 +434,7 @@ private:
     const std::vector<CatalogEntry>& catalog_entries() {
         if (!catalog_entries_.empty()) return catalog_entries_;
         auto response = http_client_.get("https://api.github.com/repos/af1Series1/Tritolgia/git/trees/main?recursive=1",
-                                         {{"User-Agent", kBrowserUserAgent}}, 20, true);
+                                         {{"User-Agent", plugin_user_agent()}}, 20, true);
         auto tree = Json::parse(response.body)["tree"].as_array();
         for (const auto& item : tree) {
             if (item["type"].as_string() != "blob") continue;
